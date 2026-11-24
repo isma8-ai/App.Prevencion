@@ -23,9 +23,27 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        Button button3 = findViewById(R.id.button3);
+        button3.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, chat.class);
+            startActivity(intent);
+        });
+
         Button button4 = findViewById(R.id.button4);
         button4.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, mapa.class);
+            startActivity(intent);
+        });
+
+        Button button6 = findViewById(R.id.button6);
+        button6.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, historial.class);
+            startActivity(intent);
+        });
+
+        Button button7 = findViewById(R.id.button7);
+        button7.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, historial.class);
             startActivity(intent);
         });
     }
