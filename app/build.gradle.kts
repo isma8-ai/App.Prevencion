@@ -40,4 +40,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
+
+
+    //mapa de calor
+    implementation(libs.play.services.maps)
+    implementation(libs.android.maps.utils)
+
 }
