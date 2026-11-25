@@ -1,16 +1,8 @@
 package com.example.hackeatonbackend;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.RectF;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,16 +26,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,11 +46,9 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap googleMap;
     private HeatmapTileProvider heatmapProvider;
     private TileOverlay heatmapOverlay;
+    private BitmapDescriptor iconoAlerta;
     private final Map<String, ReporteMarcador> reportesPorMarkerId = new HashMap<>();
     private final List<LatLng> heatmapPoints = new ArrayList<>();
-
-    private static final String PREF_NAME = "ReportesMapaPrefs";
-    private static final String KEY_REPORTES = "reportes_anonimos";
 
     private final ActivityResultLauncher<String[]> locationPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -103,24 +89,16 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
+        iconoAlerta = MapaDatos.crearIconoAlerta(1f);
 
         googleMap.getUiSettings().setZoomControlsEnabled(true);
         googleMap.getUiSettings().setZoomGesturesEnabled(true);
 
-        LatLng losMochis = new LatLng(25.79097, -108.99825);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(losMochis, 13f));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MapaDatos.CENTRO_DEFAULT, 13f));
 
-        // Puntos base iniciales del mapa de calor
+        // Puntos base + reportes guardados localmente
         heatmapPoints.clear();
-        heatmapPoints.add(new LatLng(25.784167, -109.031111)); // Los Virreyes
-        heatmapPoints.add(new LatLng(25.753333, -108.988333)); // Las Flores
-        heatmapPoints.add(new LatLng(25.774500, -108.969000)); // Las Canteras
-        heatmapPoints.add(new LatLng(25.780278, -109.025278)); // Álamos Country
-        heatmapPoints.add(new LatLng(25.790970, -108.998250)); // Zona Centro
-        heatmapPoints.add(new LatLng(25.600833, -109.052222)); // Topolobampo
-
-        // Cargar reportes guardados localmente en el dispositivo
-        cargarReportesGuardados();
+        heatmapPoints.addAll(MapaDatos.obtenerPuntosCalor(this));
 
         heatmapProvider = new HeatmapTileProvider.Builder()
                 .data(heatmapPoints)
@@ -140,53 +118,22 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback {
         verificarPermisoUbicacion();
     }
 
+    private void agregarMarcadorAlMapa(ReporteMarcador reporte) {
+        Marker marker = googleMap.addMarker(new MarkerOptions()
+                .position(reporte.posicion)
+                .title(reporte.titulo)
+                .anchor(0.5f, 1.0f)
+                .icon(iconoAlerta));
+
+        if (marker != null) {
+            marker.setTag(reporte);
+            reportesPorMarkerId.put(marker.getId(), reporte);
+        }
+    }
+
     private void agregarMarcadoresDeAlerta() {
-        List<ReporteMarcador> reportes = new ArrayList<>();
-
-        // Reportes predeterminados
-        reportes.add(new ReporteMarcador(
-                "m1",
-                "Bar El Delfín (zona Obregón)",
-                new LatLng(25.7918, -108.9978),
-                "Anónimo",
-                "24/11/2026 21:30",
-                "Intentaron poner algo en mi bebida y me sentí observada."
-        ));
-
-        reportes.add(new ReporteMarcador(
-                "m2",
-                "José Guillermo Blake y San Mateo (Las Canteras)",
-                new LatLng(25.7745, -108.9690),
-                "Anónimo",
-                "24/11/2026 21:55",
-                "Un señor de aspecto sospechoso me estuvo siguiendo."
-        ));
-
-        reportes.add(new ReporteMarcador(
-                "m3",
-                "Entre Las Veredas y Álamos Country",
-                new LatLng(25.7815, -109.0265),
-                "Rosalina123",
-                "24/11/2026 22:10",
-                "Está muy oscuro y casi siempre hay borrachos por la zona, recomiendo rodear por el blvd."
-        ));
-
-        // Cargar reportes anónimos guardados por usuarias
-        reportes.addAll(obtenerReportesLocales());
-
-        BitmapDescriptor iconoAlerta = crearIconoAlerta();
-
-        for (ReporteMarcador reporte : reportes) {
-            Marker marker = googleMap.addMarker(new MarkerOptions()
-                    .position(reporte.posicion)
-                    .title(reporte.titulo)
-                    .anchor(0.5f, 1.0f)
-                    .icon(iconoAlerta));
-
-            if (marker != null) {
-                marker.setTag(reporte);
-                reportesPorMarkerId.put(marker.getId(), reporte);
-            }
+        for (ReporteMarcador reporte : MapaDatos.obtenerTodosLosReportes(this)) {
+            agregarMarcadorAlMapa(reporte);
         }
 
         googleMap.setOnMarkerClickListener(marker -> {
@@ -233,24 +180,14 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback {
                     );
 
                     // Guardar localmente
-                    guardarReporteLocal(nuevoReporte);
+                    MapaDatos.guardarReporteLocal(this, nuevoReporte);
 
                     HistorialManager.registrar(this, HistorialManager.TIPO_MAPA,
                             "Reporte \"" + titulo + "\" en (" +
                                     String.format(Locale.US, "%.4f, %.4f", latLng.latitude, latLng.longitude) + ")");
 
                     // Agregar marcador al mapa en tiempo real
-                    BitmapDescriptor iconoAlerta = crearIconoAlerta();
-                    Marker marker = googleMap.addMarker(new MarkerOptions()
-                            .position(nuevoReporte.posicion)
-                            .title(nuevoReporte.titulo)
-                            .anchor(0.5f, 1.0f)
-                            .icon(iconoAlerta));
-
-                    if (marker != null) {
-                        marker.setTag(nuevoReporte);
-                        reportesPorMarkerId.put(marker.getId(), nuevoReporte);
-                    }
+                    agregarMarcadorAlMapa(nuevoReporte);
 
                     // Actualizar mapa de calor
                     heatmapPoints.add(latLng);
@@ -268,99 +205,6 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback {
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
-    }
-
-    private void guardarReporteLocal(ReporteMarcador reporte) {
-        SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        String jsonString = prefs.getString(KEY_REPORTES, "[]");
-        try {
-            JSONArray array = new JSONArray(jsonString);
-            JSONObject obj = new JSONObject();
-            obj.put("id", reporte.id);
-            obj.put("titulo", reporte.titulo);
-            obj.put("lat", reporte.posicion.latitude);
-            obj.put("lng", reporte.posicion.longitude);
-            obj.put("usuario", reporte.usuario);
-            obj.put("fecha", reporte.fecha);
-            obj.put("comentario", reporte.comentario);
-            array.put(obj);
-            prefs.edit().putString(KEY_REPORTES, array.toString()).apply();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private List<ReporteMarcador> obtenerReportesLocales() {
-        List<ReporteMarcador> lista = new ArrayList<>();
-        SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        String jsonString = prefs.getString(KEY_REPORTES, "[]");
-        try {
-            JSONArray array = new JSONArray(jsonString);
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                String id = obj.getString("id");
-                String titulo = obj.getString("titulo");
-                double lat = obj.getDouble("lat");
-                double lng = obj.getDouble("lng");
-                String usuario = obj.getString("usuario");
-                String fecha = obj.getString("fecha");
-                String comentario = obj.getString("comentario");
-
-                lista.add(new ReporteMarcador(id, titulo, new LatLng(lat, lng), usuario, fecha, comentario));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return lista;
-    }
-
-    private void cargarReportesGuardados() {
-        for (ReporteMarcador r : obtenerReportesLocales()) {
-            heatmapPoints.add(r.posicion);
-        }
-    }
-
-    private BitmapDescriptor crearIconoAlerta() {
-        int width = 96;
-        int height = 112;
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-
-        Paint pinPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        pinPaint.setColor(Color.parseColor("#E53935"));
-        pinPaint.setStyle(Paint.Style.FILL);
-
-        Paint circuloClaroPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        circuloClaroPaint.setColor(Color.parseColor("#E3F2FD"));
-        circuloClaroPaint.setStyle(Paint.Style.FILL);
-
-        Paint exclamacionPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        exclamacionPaint.setColor(Color.parseColor("#D32F2F"));
-        exclamacionPaint.setStyle(Paint.Style.FILL);
-        exclamacionPaint.setStrokeCap(Paint.Cap.ROUND);
-
-        // Cabeza circular del pin
-        canvas.drawCircle(48f, 40f, 32f, pinPaint);
-
-        // Punta inferior del pin apuntando a la coordenada exacta
-        Path punta = new Path();
-        punta.moveTo(21f, 54f);
-        punta.lineTo(75f, 54f);
-        punta.lineTo(48f, 104f);
-        punta.close();
-        canvas.drawPath(punta, pinPaint);
-
-        // Círculo interior claro similar a la referencia
-        canvas.drawCircle(48f, 40f, 23f, circuloClaroPaint);
-
-        // Barra superior del signo de exclamación (!)
-        RectF barraExclamacion = new RectF(44f, 22f, 52f, 43f);
-        canvas.drawRoundRect(barraExclamacion, 4f, 4f, exclamacionPaint);
-
-        // Punto inferior del signo de exclamación
-        canvas.drawCircle(48f, 51.5f, 4.2f, exclamacionPaint);
-
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     private void mostrarMenuComentario(ReporteMarcador reporte) {
