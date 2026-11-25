@@ -1,5 +1,7 @@
 package com.example.hackeatonbackend;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,39 +40,44 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Botón Comentario / Muro Anónimo
         Button button3 = findViewById(R.id.button3);
         button3.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, chat.class);
             startActivity(intent);
         });
 
-        // Botón Ver Mapa
         Button button4 = findViewById(R.id.button4);
         button4.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, mapa.class);
             startActivity(intent);
         });
 
-        // Botón Historial
         Button button6 = findViewById(R.id.button6);
         button6.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, historial.class);
             startActivity(intent);
         });
 
-        // Botón Configuración (Abre configuracion.class para contactos)
         Button button7 = findViewById(R.id.button7);
         button7.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, configuracion.class);
             startActivity(intent);
         });
 
-        // Botón Menú Superior (☰ Menú) para gestión rápida de contactos e ID
         Button btnTopMenu = findViewById(R.id.btnTopMenu);
         if (btnTopMenu != null) {
             btnTopMenu.setOnClickListener(v -> showQuickMenuDialog());
         }
+    }
+
+    private String getOrCreateMyId() {
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String myId = prefs.getString(KEY_MY_ID, null);
+        if (myId == null || myId.isEmpty()) {
+            myId = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+            prefs.edit().putString(KEY_MY_ID, myId).apply();
+        }
+        return myId;
     }
 
     private void showQuickMenuDialog() {
@@ -113,6 +121,45 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void showMyIdDialog() {
+        String myId = getOrCreateMyId();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Mi ID Único");
+        builder.setMessage("Comparte este ID para vincularte:\n\n" + myId);
+        builder.setPositiveButton("Copiar", (dialog, which) -> {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            if (clipboard != null) {
+                ClipData clip = ClipData.newPlainText("ID Centinela", myId);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(this, "ID copiado al portapapeles", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cerrar", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void showViewContactsDialog() {
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        Set<String> contactsSet = prefs.getStringSet(KEY_CONTACTS, new HashSet<>());
+        List<String> contactsList = new ArrayList<>(contactsSet);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Contactos Vinculados");
+
+        if (contactsList.isEmpty()) {
+            builder.setMessage("Aún no tienes contactos vinculados.");
+            builder.setPositiveButton("Aceptar", null);
+        } else {
+            String[] items = contactsList.toArray(new String[0]);
+            builder.setItems(items, (dialog, which) -> {
+                String selectedId = items[which];
+                Toast.makeText(this, "Contacto: " + selectedId, Toast.LENGTH_SHORT).show();
+            });
+            builder.setPositiveButton("Cerrar", null);
+        }
         builder.show();
     }
 }
