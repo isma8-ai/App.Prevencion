@@ -1,0 +1,2 @@
+- [x] 1. Actualizar el diseño y lógica de `chat.java` y `activity_chat.xml` para incluir el aviso de privacidad (comentarios anónimos y acceso exclusivo de la Asociación de Mujeres por seguridad)
+- [x] 2. Pruebas y verificación de la funcionalidad (Build exitoso)
