@@ -133,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
                 .show();
 
         Toast.makeText(this, "¡Alerta SOS enviada a " + contacts.size() + " contactos de confianza!", Toast.LENGTH_LONG).show();
+        HistorialManager.registrar(this, HistorialManager.TIPO_SOS,
+                "Alerta SOS enviada a " + contacts.size() + " contactos de confianza");
     }
 
     private void showQuickMenuDialog() {

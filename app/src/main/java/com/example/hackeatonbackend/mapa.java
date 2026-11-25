@@ -235,6 +235,10 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback {
                     // Guardar localmente
                     guardarReporteLocal(nuevoReporte);
 
+                    HistorialManager.registrar(this, HistorialManager.TIPO_MAPA,
+                            "Reporte \"" + titulo + "\" en (" +
+                                    String.format(Locale.US, "%.4f, %.4f", latLng.latitude, latLng.longitude) + ")");
+
                     // Agregar marcador al mapa en tiempo real
                     BitmapDescriptor iconoAlerta = crearIconoAlerta();
                     Marker marker = googleMap.addMarker(new MarkerOptions()

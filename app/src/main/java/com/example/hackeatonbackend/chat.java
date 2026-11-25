@@ -57,6 +57,8 @@ public class chat extends AppCompatActivity {
                 etMessage.setText("");
                 listViewMessages.smoothScrollToPosition(reportList.size() - 1);
                 Toast.makeText(this, "Alerta publicada de forma anónima para advertir a la comunidad", Toast.LENGTH_SHORT).show();
+                HistorialManager.registrar(this, HistorialManager.TIPO_CHAT,
+                        "Publicaste un mensaje anónimo");
             } else {
                 Toast.makeText(this, "Escribe una descripción de la situación", Toast.LENGTH_SHORT).show();
             }

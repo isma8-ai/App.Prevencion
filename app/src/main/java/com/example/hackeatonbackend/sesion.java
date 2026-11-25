@@ -56,6 +56,9 @@ public class sesion extends AppCompatActivity {
                 // Cambia MainActivity.class por la Activity a la que quieras avanzar
                 Intent intent = new Intent(sesion.this, MainActivity.class);
                 intent.putExtra("USUARIO", usuarioIngresado);
+                HistorialManager.registrar(this, HistorialManager.TIPO_LOGIN,
+                        "Inicio de sesión como " + usuarioIngresado);
+
                 startActivity(intent);
                 finish();
             } else {

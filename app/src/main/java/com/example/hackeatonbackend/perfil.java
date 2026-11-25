@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -84,6 +86,15 @@ public class perfil extends AppCompatActivity {
             String allergies = etAllergies.getText().toString().trim();
             String medical = etMedicalInfo.getText().toString().trim();
 
+            List<String> cambios = new ArrayList<>();
+            if (!name.equals(prefs.getString(KEY_FULL_NAME, ""))) cambios.add("Nombre");
+            if (!dob.equals(prefs.getString(KEY_DOB, ""))) cambios.add("Fecha de nacimiento");
+            if (!phone.equals(prefs.getString(KEY_PHONE, ""))) cambios.add("Teléfono");
+            if (!email.equals(prefs.getString(KEY_EMAIL, ""))) cambios.add("Correo");
+            if (!blood.equals(prefs.getString(KEY_BLOOD, ""))) cambios.add("Tipo de sangre");
+            if (!allergies.equals(prefs.getString(KEY_ALLERGIES, ""))) cambios.add("Alergias");
+            if (!medical.equals(prefs.getString(KEY_MEDICAL, ""))) cambios.add("Info médica");
+
             prefs.edit()
                     .putString(KEY_FULL_NAME, name)
                     .putString(KEY_DOB, dob)
@@ -94,6 +105,10 @@ public class perfil extends AppCompatActivity {
                     .putString(KEY_MEDICAL, medical)
                     .apply();
 
+            if (!cambios.isEmpty()) {
+                HistorialManager.registrar(this, HistorialManager.TIPO_PERFIL,
+                        "Se modificó: " + String.join(", ", cambios));
+            }
             Toast.makeText(this, "Perfil y Ficha de Emergencia guardados correctamente", Toast.LENGTH_SHORT).show();
         };
 
