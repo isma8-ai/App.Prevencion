@@ -4,7 +4,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#070A14"
+    android:background="#C299CE"
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:padding="16dp"
@@ -51,8 +51,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:text="Sin dispositivo vinculado"
-        android:textColor="#A29BFE"
-        android:textSize="12sp" />
+        android:textColor="#DADAFF"
+        android:textSize="12sp"
+        android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -89,10 +90,11 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="20dp"
         android:text="Dispositivos cercanos (toca uno para conectar)"
-        android:textColor="#B0BEC5"
-        android:textSize="12sp" />
+        android:textColor="#FFFFFF"
+        android:textSize="15sp"
+        android:textStyle="bold" />
 
     <ListView
         android:id="@+id/listDispositivos"
@@ -102,7 +104,8 @@
         android:layout_weight="1"
         android:background="@drawable/bg_dark_card"
         android:divider="#3D3568"
-        android:dividerHeight="1dp" />
+        android:dividerHeight="1dp"
+        android:textAlignment="center" />
 
     <Button
         android:id="@+id/btnProbar"

@@ -12,6 +12,7 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#C299CE"
         android:padding="16dp">
 
         <!-- Top Header: Logo, Title, Subtitle, and Menu Button -->
@@ -19,20 +20,20 @@
             android:id="@+id/imgLogo"
             android:layout_width="52dp"
             android:layout_height="52dp"
-            android:src="@drawable/logo"
-            android:scaleType="centerCrop"
             android:background="@drawable/bg_menu_button"
+            android:contentDescription="Logo Centinela"
             android:padding="6dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/logo"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:contentDescription="Logo Centinela" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
             android:id="@+id/layoutTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginStart="12dp"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="@id/imgLogo"
             app:layout_constraintEnd_toStartOf="@id/btnTopMenu"
             app:layout_constraintStart_toEndOf="@id/imgLogo"
@@ -41,11 +42,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:letterSpacing="0.08"
                 android:text="CENTINELA"
+                android:textAlignment="viewStart"
                 android:textColor="#FFFFFF"
                 android:textSize="21sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.08" />
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -59,14 +61,14 @@
             android:id="@+id/btnTopMenu"
             android:layout_width="wrap_content"
             android:layout_height="44dp"
+            android:background="@drawable/bg_menu_button"
+            android:paddingHorizontal="16dp"
             android:text="☰ Menú"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
-            android:background="@drawable/bg_menu_button"
-            android:paddingHorizontal="16dp"
+            app:layout_constraintBottom_toBottomOf="@id/imgLogo"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/imgLogo"
-            app:layout_constraintBottom_toBottomOf="@id/imgLogo" />
+            app:layout_constraintTop_toTopOf="@id/imgLogo" />
 
         <!-- Status Pill Badge -->
         <LinearLayout
@@ -85,8 +87,8 @@
             <View
                 android:layout_width="8dp"
                 android:layout_height="8dp"
-                android:background="@android:color/holo_green_light"
-                android:layout_marginEnd="6dp" />
+                android:layout_marginEnd="6dp"
+                android:background="@android:color/holo_green_light" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -103,9 +105,9 @@
             android:layout_width="0dp"
             android:layout_height="165dp"
             android:layout_marginTop="12dp"
+            app:cardBackgroundColor="#16122B"
             app:cardCornerRadius="18dp"
             app:cardElevation="8dp"
-            app:cardBackgroundColor="#16122B"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/statusBadge">
@@ -164,11 +166,11 @@
             android:layout_width="0dp"
             android:layout_height="64dp"
             android:layout_marginTop="16dp"
+            android:background="@drawable/bg_sos_button"
             android:text="🚨  ¡SOS! Pide Ayuda"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:background="@drawable/bg_sos_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cardMiniMapa" />
@@ -180,11 +182,11 @@
             android:layout_height="58dp"
             android:layout_marginTop="14dp"
             android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_dark_card"
             android:text="💬 Comentario"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:background="@drawable/bg_dark_card"
             app:layout_constraintEnd_toStartOf="@id/button4"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/button2" />
@@ -193,13 +195,13 @@
             android:id="@+id/button4"
             android:layout_width="0dp"
             android:layout_height="58dp"
-            android:layout_marginTop="14dp"
             android:layout_marginStart="6dp"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_dark_card"
             android:text="🗺️ Ver Mapa"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:background="@drawable/bg_dark_card"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/button3"
             app:layout_constraintTop_toBottomOf="@id/button2" />
@@ -211,11 +213,11 @@
             android:layout_height="58dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_dark_card"
             android:text="🛡️ Mi Pulsera"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:background="@drawable/bg_dark_card"
             app:layout_constraintEnd_toStartOf="@id/button6"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/button3" />
@@ -224,13 +226,13 @@
             android:id="@+id/button6"
             android:layout_width="0dp"
             android:layout_height="58dp"
-            android:layout_marginTop="10dp"
             android:layout_marginStart="6dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_dark_card"
             android:text="📄 Historial"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:background="@drawable/bg_dark_card"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/button5"
             app:layout_constraintTop_toBottomOf="@id/button4" />
@@ -241,11 +243,11 @@
             android:layout_width="0dp"
             android:layout_height="58dp"
             android:layout_marginTop="10dp"
+            android:background="@drawable/bg_dark_card"
             android:text="⚙️ Acerca de Centinela"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:background="@drawable/bg_dark_card"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/button5" />

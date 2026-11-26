@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#C299CE"
     android:padding="16dp"
     tools:context=".chat">
 
@@ -12,8 +13,7 @@
         android:id="@+id/tvPrivacyNotice"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:background="#E8F5E9"
+        android:background="#F6E7FF"
         android:padding="8dp"
         android:text="🔒 Tus comentarios son anónimos. Solo la Asociación de Mujeres podrá ver tus datos por seguridad."
         android:textColor="#2E7D32"

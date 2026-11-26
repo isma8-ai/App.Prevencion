@@ -10,6 +10,7 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#C299CE"
         android:orientation="vertical"
         android:padding="20dp">
 
@@ -32,7 +33,7 @@
                 android:id="@+id/btnSaveTop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#2E7D32"
+                android:backgroundTint="#2E647D"
                 android:text="Guardar"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp" />
@@ -51,9 +52,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:background="#E3F2FD"
+            android:background="#C67CD1"
+            android:fontFamily="sans-serif"
             android:padding="10dp"
             android:text="CENTINELA-0000"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display3"
             android:textColor="#0D47A1"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -135,7 +139,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:backgroundTint="#2E7D32"
+            android:backgroundTint="#2E647D"
             android:text="Guardar Perfil y Ficha"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
