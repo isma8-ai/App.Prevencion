@@ -25,6 +25,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textColor="#FFFFFF"
                 android:text="Mi Perfil y Ficha de Emergencia"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -43,6 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:textColor="#FFFFFF"
             android:text="ID CENTINELA (Único):"
             android:textSize="12sp"
             android:textStyle="bold" />
@@ -52,13 +54,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:background="#C67CD1"
+            android:background="#F6E7FF"
             android:fontFamily="sans-serif"
             android:padding="10dp"
             android:text="CENTINELA-0000"
             android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display3"
-            android:textColor="#0D47A1"
+            android:textColor="#4A148C"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -75,6 +76,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="#F6E7FF"
+            android:padding="12dp"
+            android:textColor="#1E293B"
             android:hint="Nombre y apellidos"
             android:inputType="textPersonName" />
 
@@ -83,6 +87,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="#F6E7FF"
+            android:padding="12dp"
+            android:textColor="#1E293B"
             android:hint="Fecha de nacimiento (DD/MM/AAAA)"
             android:inputType="date" />
 
@@ -91,6 +98,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="#F6E7FF"
+            android:padding="12dp"
+            android:textColor="#1E293B"
             android:hint="Número de teléfono"
             android:inputType="phone" />
 
@@ -99,6 +109,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="#F6E7FF"
+            android:padding="12dp"
+            android:textColor="#1E293B"
             android:hint="Correo electrónico"
             android:inputType="textEmailAddress" />
 
@@ -115,6 +128,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="#F6E7FF"
+            android:padding="12dp"
+            android:textColor="#1E293B"
             android:hint="Tipo de sangre (ej. O+, A-, etc.)"
             android:inputType="text" />
 
@@ -123,6 +139,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="#F6E7FF"
+            android:padding="12dp"
+            android:textColor="#1E293B"
             android:hint="Alergias (ej. Penicilina, ningún)"
             android:inputType="textMultiLine" />
 
@@ -131,6 +150,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="#F6E7FF"
+            android:padding="12dp"
+            android:textColor="#1E293B"
             android:hint="Información médica relevante (condiciones, medicamentos)"
             android:inputType="textMultiLine" />
 
