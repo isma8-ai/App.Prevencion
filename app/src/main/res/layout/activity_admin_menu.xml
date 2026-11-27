@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E57373"
+    android:background="?attr/colorOnPrimaryFixed"
     android:fillViewport="true"
     tools:context=".AdminMenuActivity">
 
@@ -12,7 +12,7 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#E57373"
+        android:background="#D8BFD8"
         android:padding="16dp">
 
         <!-- Cabecera: Logo, Título, Subtítulo y Botón Menú Usuarios -->
@@ -21,7 +21,7 @@
             android:layout_width="52dp"
             android:layout_height="52dp"
             android:background="@drawable/bg_menu_button"
-            android:backgroundTint="#A62626"
+            android:backgroundTint="?attr/colorOnPrimaryFixed"
             android:contentDescription="Logo Centinela Admin"
             android:padding="6dp"
             android:scaleType="centerCrop"
@@ -79,8 +79,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/bg_menu_button"
-            android:backgroundTint="#A62626"
+            android:background="@drawable/bg_dark_card"
+            android:backgroundTint="?attr/colorOnPrimaryFixed"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="12dp"
@@ -176,7 +176,7 @@
             android:layout_marginStart="6dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_dark_card"
-            android:backgroundTint="#A626266"
+            android:backgroundTint="#A62626"
             android:text="📄 Historial"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
@@ -257,7 +257,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:background="@drawable/bg_dark_card"
-            android:backgroundTint="#A62626"
+            android:backgroundTint="?attr/colorOnPrimaryFixed"
             android:gravity="center"
             android:orientation="vertical"
             android:padding="16dp"

@@ -12,6 +12,7 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#D8BFD8"
         android:padding="16dp">
 
         <!-- Top Header: Logo, Title, Subtitle, and Menu Button -->
@@ -272,8 +273,8 @@
             android:textSize="15sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintStart_toEndOf="@id/button5"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/button4" />
 
         <!-- Full width Bottom Button: Acerca de -->

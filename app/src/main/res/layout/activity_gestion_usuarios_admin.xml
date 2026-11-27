@@ -3,7 +3,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E57373"
+    android:background="#D8BFD8"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -24,8 +24,9 @@
         android:hint="Buscar por nombre de usuario..."
         android:inputType="text"
         android:paddingHorizontal="12dp"
-        android:textColor="#4A0000"
-        android:textColorHint="#8E2424" />
+        android:textColor="#370483"
+        android:textColorHint="#471C87"
+        android:textStyle="italic" />
 
     <ListView
         android:id="@+id/listUsuariosAdmin"
@@ -34,8 +35,8 @@
         android:layout_marginTop="12dp"
         android:layout_weight="1"
         android:background="#FFEBEE"
-        android:divider="#E57373"
-        android:dividerHeight="1dp"
+        android:divider="@drawable/bg_menu_button"
+        android:dividerHeight="2dp"
         android:padding="6dp" />
 
     <Button
@@ -43,7 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="12dp"
-        android:backgroundTint="#A62626"
+        android:backgroundTint="#5D4894"
         android:text="Volver"
         android:textColor="#FFFFFF"
         android:textStyle="bold" />
