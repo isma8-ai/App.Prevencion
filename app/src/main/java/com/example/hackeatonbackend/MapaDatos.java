@@ -24,15 +24,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Datos compartidos del mapa (puntos de calor, reportes, icono de alerta).
- * Lo usan tanto la actividad "mapa" como el minimapa de MainActivity.
- */
 public class MapaDatos {
 
-    public static final LatLng CENTRO_DEFAULT = new LatLng(25.79097, -108.99825); // Los Mochis centro
+    public static final LatLng CENTRO_DEFAULT = new LatLng(25.79097, -108.99825);
     public static final float RADIO_MINIMAPA_METROS = 100f;
-    /** Duración de una marca SOS en el mapa: media hora. */
     public static final long DURACION_SOS_MS = 30L * 60L * 1000L;
 
     private static final String PREF_NAME = "ReportesMapaPrefs";
@@ -40,20 +35,17 @@ public class MapaDatos {
 
     private MapaDatos() {}
 
-    // ---------------------------------------------------------------- Puntos de calor
-
     public static List<LatLng> puntosCalorBase() {
         List<LatLng> puntos = new ArrayList<>();
-        puntos.add(new LatLng(25.784167, -109.031111)); // Los Virreyes
-        puntos.add(new LatLng(25.753333, -108.988333)); // Las Flores
-        puntos.add(new LatLng(25.774500, -108.969000)); // Las Canteras
-        puntos.add(new LatLng(25.780278, -109.025278)); // Álamos Country
-        puntos.add(new LatLng(25.790970, -108.998250)); // Zona Centro
-        puntos.add(new LatLng(25.600833, -109.052222)); // Topolobampo
+        puntos.add(new LatLng(25.784167, -109.031111));
+        puntos.add(new LatLng(25.753333, -108.988333));
+        puntos.add(new LatLng(25.774500, -108.969000));
+        puntos.add(new LatLng(25.780278, -109.025278));
+        puntos.add(new LatLng(25.790970, -108.998250));
+        puntos.add(new LatLng(25.600833, -109.052222));
         return puntos;
     }
 
-    /** Puntos base + posiciones de los reportes guardados en el dispositivo. */
     public static List<LatLng> obtenerPuntosCalor(Context context) {
         List<LatLng> puntos = puntosCalorBase();
         for (ReporteMarcador r : obtenerReportesLocales(context)) {
@@ -61,8 +53,6 @@ public class MapaDatos {
         }
         return puntos;
     }
-
-    // ---------------------------------------------------------------- Reportes
 
     public static List<ReporteMarcador> reportesPredeterminados() {
         List<ReporteMarcador> reportes = new ArrayList<>();
@@ -72,8 +62,11 @@ public class MapaDatos {
                 "Bar El Delfín (zona Obregón)",
                 new LatLng(25.7918, -108.9978),
                 "Anónimo",
+                "sofia_m",
                 "24/11/2026 21:30",
-                "Intentaron poner algo en mi bebida y me sentí observada."
+                "Intentaron poner algo en mi bebida y me sentí observada.",
+                0L,
+                false
         ));
 
         reportes.add(new ReporteMarcador(
@@ -81,8 +74,11 @@ public class MapaDatos {
                 "José Guillermo Blake y San Mateo (Las Canteras)",
                 new LatLng(25.7745, -108.9690),
                 "Anónimo",
+                "camila_lm",
                 "24/11/2026 21:55",
-                "Un señor de aspecto sospechoso me estuvo siguiendo."
+                "Un señor de aspecto sospechoso me estuvo siguiendo.",
+                0L,
+                false
         ));
 
         reportes.add(new ReporteMarcador(
@@ -90,14 +86,16 @@ public class MapaDatos {
                 "Entre Las Veredas y Álamos Country",
                 new LatLng(25.7815, -109.0265),
                 "Rosalina123",
+                "Rosalina123",
                 "24/11/2026 22:10",
-                "Está muy oscuro y casi siempre hay borrachos por la zona, recomiendo rodear por el blvd."
+                "Está muy oscuro y casi siempre hay borrachos por la zona, recomiendo rodear por el blvd.",
+                0L,
+                false
         ));
 
         return reportes;
     }
 
-    /** Reportes predeterminados + reportes anónimos guardados en el dispositivo. */
     public static List<ReporteMarcador> obtenerTodosLosReportes(Context context) {
         List<ReporteMarcador> todos = reportesPredeterminados();
         todos.addAll(obtenerReportesLocales(context));
@@ -115,8 +113,8 @@ public class MapaDatos {
             for (int i = 0; i < actual.length(); i++) {
                 JSONObject o = actual.getJSONObject(i);
                 long exp = o.optLong("expira", 0L);
-                if (exp > 0 && exp <= ahora) continue; // purga marcas ya vencidas
-                if (reporte.esSos && reporte.id.equals(o.optString("id"))) continue; // un nuevo SOS reemplaza al anterior
+                if (exp > 0 && exp <= ahora) continue;
+                if (reporte.esSos && reporte.id.equals(o.optString("id"))) continue;
                 array.put(o);
             }
             JSONObject obj = new JSONObject();
@@ -125,6 +123,7 @@ public class MapaDatos {
             obj.put("lat", reporte.posicion.latitude);
             obj.put("lng", reporte.posicion.longitude);
             obj.put("usuario", reporte.usuario);
+            obj.put("autorReal", reporte.autorReal);
             obj.put("fecha", reporte.fecha);
             obj.put("comentario", reporte.comentario);
             obj.put("expira", reporte.expiraEn);
@@ -146,12 +145,15 @@ public class MapaDatos {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
                 long expira = obj.optLong("expira", 0L);
-                if (expira > 0 && expira <= System.currentTimeMillis()) continue; // marca SOS vencida
+                if (expira > 0 && expira <= System.currentTimeMillis()) continue;
+                String usuario = obj.getString("usuario");
+                String autorReal = obj.optString("autorReal", usuario);
                 lista.add(new ReporteMarcador(
                         obj.getString("id"),
                         obj.getString("titulo"),
                         new LatLng(obj.getDouble("lat"), obj.getDouble("lng")),
-                        obj.getString("usuario"),
+                        usuario,
+                        autorReal,
                         obj.getString("fecha"),
                         obj.getString("comentario"),
                         expira,
@@ -163,12 +165,6 @@ public class MapaDatos {
         return lista;
     }
 
-    // ---------------------------------------------------------------- Marca SOS
-
-    /**
-     * Publica una marca SOS temporal (30 min) con usuario, fecha y hora.
-     * Cada usuario tiene una sola marca SOS: una nueva reemplaza a la anterior.
-     */
     public static ReporteMarcador publicarMarcaSos(Context context, String idUsuario, String usuario,
                                                    LatLng posicion, String origen) {
         long ahora = System.currentTimeMillis();
@@ -178,6 +174,7 @@ public class MapaDatos {
                 "🚨 SOS de " + usuario,
                 posicion,
                 usuario,
+                usuario,
                 fecha,
                 "Alerta SOS activada (" + origen + ").",
                 ahora + DURACION_SOS_MS,
@@ -185,8 +182,6 @@ public class MapaDatos {
         guardarReporteLocal(context, marca);
         return marca;
     }
-
-    // ---------------------------------------------------------------- Radio
 
     public static boolean estaEnRadio(LatLng punto, LatLng centro, float metros) {
         float[] resultado = new float[1];
@@ -203,7 +198,6 @@ public class MapaDatos {
         return dentro;
     }
 
-    /** Cuadro que contiene el círculo de radio "metros" alrededor del centro. */
     public static LatLngBounds limitesDeRadio(LatLng centro, float metros) {
         double dLat = metros / 111320.0;
         double dLng = metros / (111320.0 * Math.cos(Math.toRadians(centro.latitude)));
@@ -212,14 +206,10 @@ public class MapaDatos {
                 new LatLng(centro.latitude + dLat, centro.longitude + dLng));
     }
 
-    // ---------------------------------------------------------------- Icono
-
-    /** Icono de alerta. escala 1f = tamaño normal (mapa grande), 0.5f = minimapa. */
     public static BitmapDescriptor crearIconoAlerta(float escala) {
         return crearIcono(escala, 0xFFE53935, 0xFFD32F2F);
     }
 
-    /** Icono morado para las marcas SOS temporales. */
     public static BitmapDescriptor crearIconoSos(float escala) {
         return crearIcono(escala, 0xFF7B1FA2, 0xFF4A148C);
     }
@@ -244,10 +234,8 @@ public class MapaDatos {
         exclamacionPaint.setStyle(Paint.Style.FILL);
         exclamacionPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        // Cabeza circular del pin
         canvas.drawCircle(48f, 40f, 32f, pinPaint);
 
-        // Punta inferior del pin apuntando a la coordenada exacta
         Path punta = new Path();
         punta.moveTo(21f, 54f);
         punta.lineTo(75f, 54f);
@@ -255,10 +243,8 @@ public class MapaDatos {
         punta.close();
         canvas.drawPath(punta, pinPaint);
 
-        // Círculo interior claro
         canvas.drawCircle(48f, 40f, 23f, circuloClaroPaint);
 
-        // Signo de exclamación (!)
         canvas.drawRoundRect(new RectF(44f, 22f, 52f, 43f), 4f, 4f, exclamacionPaint);
         canvas.drawCircle(48f, 51.5f, 4.2f, exclamacionPaint);
 

@@ -1,11 +1,15 @@
 package com.example.hackeatonbackend;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,10 +22,23 @@ import java.util.ArrayList;
 
 public class chat extends AppCompatActivity {
 
-    private ArrayList<String> reportList;
+    private static class MensajeComunitario {
+        final String texto;
+        final String autorReal;
+        final boolean anonimo;
+
+        MensajeComunitario(String texto, String autorReal, boolean anonimo) {
+            this.texto = texto;
+            this.autorReal = autorReal;
+            this.anonimo = anonimo;
+        }
+    }
+
+    private final ArrayList<MensajeComunitario> mensajesData = new ArrayList<>();
+    private final ArrayList<String> displayList = new ArrayList<>();
     private ArrayAdapter<String> adapter;
-    private EditText etMessage;
-    private ListView listViewMessages;
+    private boolean isAdmin = false;
+    private String usuarioActual = "Anónimo";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,29 +51,54 @@ public class chat extends AppCompatActivity {
             return insets;
         });
 
-        listViewMessages = findViewById(R.id.listViewMessages);
-        etMessage = findViewById(R.id.etMessage);
+        SharedPreferences prefs = getSharedPreferences("CentinelaPrefs", Context.MODE_PRIVATE);
+        isAdmin = SesionRolHelper.esAdmin(this);
+        usuarioActual = prefs.getString("usuarioSesion", prefs.getString("username", "Anónimo"));
+
+        ListView listViewMessages = findViewById(R.id.listViewMessages);
+        EditText etMessage = findViewById(R.id.etMessage);
         Button btnSend = findViewById(R.id.btnSend);
         Button button12 = findViewById(R.id.button12);
+        TextView tvPrivacyNotice = findViewById(R.id.tvPrivacyNotice);
 
-        reportList = new ArrayList<>();
-        // Mensaje informativo de seguridad y privacidad
-        reportList.add("🛡️ [Aviso de Privacidad]: Tus comentarios y reportes son completamente anónimos para la comunidad. Solo la Asociación de Mujeres tendrá acceso a tus datos protegidos por seguridad.");
-        // Reportes comunitarios de prevención previos
-        reportList.add("⚠️ [Alerta Comunitaria] Zona Parque Central: Reportes de acoso por la noche. ¡Tengan cuidado!");
-        reportList.add("⚠️ [Alerta Comunitaria] Calle Juárez: Falta iluminación y se reportó intento de asalto anoche.");
+        if (isAdmin) {
+            findViewById(R.id.main).setBackgroundColor(Color.parseColor("#C62828"));
+            tvPrivacyNotice.setBackgroundColor(Color.parseColor("#FFCDD2"));
+            tvPrivacyNotice.setTextColor(Color.parseColor("#8E0000"));
+            tvPrivacyNotice.setText("🔓 Vista Admin: Se muestra el nombre de usuario de autores en reportes anónimos.");
+            listViewMessages.setBackgroundColor(Color.parseColor("#FFCDD2"));
+            etMessage.setBackgroundColor(Color.parseColor("#FFCDD2"));
+            btnSend.setBackgroundColor(Color.parseColor("#8E0000"));
+        }
 
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, reportList);
+        mensajesData.add(new MensajeComunitario(
+                "🛡️ [Aviso de Privacidad]: Tus comentarios y reportes son anónimos para usuarias comunes.",
+                "Sistema", false));
+        mensajesData.add(new MensajeComunitario(
+                "⚠️ [Alerta Comunitaria] Zona Parque Central: Reportes de acoso por la noche.",
+                "marisol_lm", true));
+        mensajesData.add(new MensajeComunitario(
+                "⚠️ [Alerta Comunitaria] Calle Juárez: Falta iluminación por la noche.",
+                "valeria_99", true));
+
+        refrescarLista();
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
         listViewMessages.setAdapter(adapter);
 
         btnSend.setOnClickListener(v -> {
             String reportText = etMessage.getText().toString().trim();
             if (!reportText.isEmpty()) {
-                reportList.add("🚨 [Reporte Anónimo de Prevención]: " + reportText);
+                mensajesData.add(new MensajeComunitario(
+                        "🚨 [Reporte Anónimo de Prevención]: " + reportText,
+                        usuarioActual,
+                        true
+                ));
+                refrescarLista();
                 adapter.notifyDataSetChanged();
                 etMessage.setText("");
-                listViewMessages.smoothScrollToPosition(reportList.size() - 1);
-                Toast.makeText(this, "Alerta publicada de forma anónima para advertir a la comunidad", Toast.LENGTH_SHORT).show();
+                listViewMessages.smoothScrollToPosition(displayList.size() - 1);
+                Toast.makeText(this, "Alerta publicada", Toast.LENGTH_SHORT).show();
                 HistorialManager.registrar(this, HistorialManager.TIPO_CHAT,
                         "Publicaste un mensaje anónimo");
             } else {
@@ -65,8 +107,21 @@ public class chat extends AppCompatActivity {
         });
 
         button12.setOnClickListener(v -> {
-            Intent intent = new Intent(chat.this, MainActivity.class);
+            Intent intent = SesionRolHelper.intentMenuPrincipal(chat.this);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
+            finish();
         });
+    }
+
+    private void refrescarLista() {
+        displayList.clear();
+        for (MensajeComunitario m : mensajesData) {
+            if (m.anonimo && isAdmin) {
+                displayList.add(m.texto + "  [Usuario: " + m.autorReal + "]");
+            } else {
+                displayList.add(m.texto);
+            }
+        }
     }
 }

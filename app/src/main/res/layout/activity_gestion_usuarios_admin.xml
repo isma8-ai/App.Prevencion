@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#C62828"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="👥 Usuarios Registrados (Admin)"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/etBuscarUsuario"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:background="#FFCDD2"
+        android:hint="Buscar por nombre de usuario..."
+        android:inputType="text"
+        android:paddingHorizontal="12dp"
+        android:textColor="#4A0000"
+        android:textColorHint="#8E0000" />
+
+    <ListView
+        android:id="@+id/listUsuariosAdmin"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_weight="1"
+        android:background="#FFCDD2"
+        android:divider="#B71C1C"
+        android:dividerHeight="1dp"
+        android:padding="6dp" />
+
+    <Button
+        android:id="@+id/btnVolverAdminUsuarios"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="#8E0000"
+        android:text="Volver"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+</LinearLayout>

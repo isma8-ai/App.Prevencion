@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -80,24 +81,25 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHe
             return insets;
         });
 
+        SharedPreferences prefs = getSharedPreferences("CentinelaPrefs", Context.MODE_PRIVATE);
+        boolean isProtectorMode = prefs.getBoolean("isProtectorMode", false);
+        boolean isAdminMode = prefs.getBoolean("isAdminMode", false);
+
         Button button9 = findViewById(R.id.button9);
-        button9.setOnClickListener(v -> {
-            Intent intent = new Intent(mapa.this, MainActivity.class);
-            startActivity(intent);
-        });
+        button9.setOnClickListener(v -> finish());
 
         Button btnLeyenda = findViewById(R.id.btnLeyendaMapa);
         btnLeyenda.setOnClickListener(v -> mostrarDialogoLeyendaRojos());
 
+        if (isAdminMode) {
+            findViewById(R.id.main).setBackgroundColor(Color.parseColor("#C62828"));
+            button9.setBackgroundColor(Color.parseColor("#8E0000"));
+            btnLeyenda.setBackgroundColor(Color.parseColor("#8E0000"));
+        }
+
         View cardInstruccion = findViewById(R.id.cardInstruccion);
-        SharedPreferences prefs = getSharedPreferences("CentinelaPrefs", Context.MODE_PRIVATE);
-        boolean isProtectorMode = prefs.getBoolean("isProtectorMode", false);
         if (cardInstruccion != null) {
-            if (isProtectorMode) {
-                cardInstruccion.setVisibility(View.GONE);
-            } else {
-                cardInstruccion.setVisibility(View.VISIBLE);
-            }
+            cardInstruccion.setVisibility(isProtectorMode ? View.GONE : View.VISIBLE);
         }
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -118,7 +120,6 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHe
 
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MapaDatos.CENTRO_DEFAULT, 13f));
 
-        // Puntos base + reportes guardados localmente
         heatmapPoints.clear();
         heatmapPoints.addAll(MapaDatos.obtenerPuntosCalor(this));
 
@@ -134,15 +135,14 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHe
 
         agregarMarcadoresDeAlerta();
 
-        // Permitir que el usuario toque cualquier zona del mapa para agregar un reporte anónimo (Solo para usuarias normales)
         SharedPreferences prefs = getSharedPreferences("CentinelaPrefs", Context.MODE_PRIVATE);
         boolean isProtectorMode = prefs.getBoolean("isProtectorMode", false);
         if (!isProtectorMode) {
-            googleMap.setOnMapClickListener(latLng -> mostrarDialogoNuevoReporte(latLng));
+            googleMap.setOnMapClickListener(this::mostrarDialogoNuevoReporte);
         } else {
             googleMap.setOnMapClickListener(null);
             String protectedUserId = prefs.getString("protectedUserId", "Usuaria Protegida");
-            LatLng ubicacionTiempoReal = new LatLng(25.7925, -108.9950); // Ubicación en tiempo real de la usuaria protegida
+            LatLng ubicacionTiempoReal = new LatLng(25.7925, -108.9950);
             googleMap.addMarker(new MarkerOptions()
                     .position(ubicacionTiempoReal)
                     .title("🟢 En Tiempo Real: " + protectedUserId)
@@ -166,7 +166,6 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHe
 
     private void agregarMarcadorAlMapa(ReporteMarcador reporte) {
         if (reporte.esSos) {
-            // Un SOS nuevo del mismo usuario reemplaza al anterior
             Marker previo = marcadoresSos.remove(reporte.id);
             if (previo != null) previo.remove();
         }
@@ -188,7 +187,6 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHe
         }
     }
 
-    /** Quita la marca SOS del mapa cuando se cumple su media hora. */
     private void programarExpiracion(ReporteMarcador reporte, Marker marker) {
         long espera = Math.max(0L, reporte.expiraEn - System.currentTimeMillis());
         handler.postDelayed(() -> {
@@ -198,7 +196,6 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHe
         }, espera);
     }
 
-    /** Se llama cuando se sube una marca SOS desde la ficha de emergencia con el mapa abierto. */
     @Override
     public void onMarcaSosPublicada() {
         if (googleMap == null) return;
@@ -235,6 +232,9 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHe
         EditText edtTitulo = dialogView.findViewById(R.id.edtTituloReporte);
         EditText edtComentario = dialogView.findViewById(R.id.edtComentarioReporte);
 
+        SharedPreferences prefs = getSharedPreferences("CentinelaPrefs", Context.MODE_PRIVATE);
+        String autorReal = prefs.getString("usuarioSesion", prefs.getString("username", "Anónimo"));
+
         new AlertDialog.Builder(this)
                 .setTitle("Reportar Zona de Peligro (Anónimo)")
                 .setView(dialogView)
@@ -257,21 +257,21 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHe
                             titulo,
                             latLng,
                             "Anónimo",
+                            autorReal,
                             fechaStr,
-                            comentario
+                            comentario,
+                            0L,
+                            false
                     );
 
-                    // Guardar localmente
                     MapaDatos.guardarReporteLocal(this, nuevoReporte);
 
                     HistorialManager.registrar(this, HistorialManager.TIPO_MAPA,
                             "Reporte \"" + titulo + "\" en (" +
                                     String.format(Locale.US, "%.4f, %.4f", latLng.latitude, latLng.longitude) + ")");
 
-                    // Agregar marcador al mapa en tiempo real
                     agregarMarcadorAlMapa(nuevoReporte);
 
-                    // Actualizar mapa de calor
                     heatmapPoints.add(latLng);
                     if (heatmapProvider != null) {
                         heatmapProvider.setData(heatmapPoints);
@@ -290,7 +290,13 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHe
     }
 
     private void mostrarMenuComentario(ReporteMarcador reporte) {
-        String detalle = "Nombre de usuario: " + reporte.usuario
+        SharedPreferences prefs = getSharedPreferences("CentinelaPrefs", Context.MODE_PRIVATE);
+        boolean isAdmin = prefs.getBoolean("isAdminMode", false);
+        String usuarioMostrado = (isAdmin && reporte.autorReal != null && !reporte.autorReal.isEmpty())
+                ? reporte.autorReal
+                : reporte.usuario;
+
+        String detalle = "Nombre de usuario: " + usuarioMostrado
                 + "\nFecha: " + reporte.fecha
                 + "\n\nComentario:\n" + reporte.comentario;
         if (reporte.esSos && reporte.expiraEn > 0) {

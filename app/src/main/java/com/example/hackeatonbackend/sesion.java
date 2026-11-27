@@ -35,10 +35,8 @@ public class sesion extends AppCompatActivity {
         Button btnCrearCuenta = findViewById(R.id.btnCrearCuenta);
         Button btnIngresarProtector = findViewById(R.id.btnIngresarProtector);
 
-        // Inicializar usuarios por defecto en UserManager
         UserManager.inicializarUsuariosPorDefecto(this);
 
-        // Validar al hacer clic en el botón de iniciar sesión con UserManager
         btnEntrar.setOnClickListener(v -> {
             String usuarioIngresado = etUsuario.getText().toString().trim();
             String passwordIngresada = etPassword.getText().toString().trim();
@@ -60,20 +58,21 @@ public class sesion extends AppCompatActivity {
             if (user != null) {
                 Toast.makeText(this, "Bienvenido, " + user.fullName + " [" + user.role + "]", Toast.LENGTH_SHORT).show();
 
-                boolean isProtector = user.role.equals("PROTECTOR");
+                SesionRolHelper.guardarRol(this, user.role, usuarioIngresado);
+
                 SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
                 prefs.edit()
-                        .putBoolean("isProtectorMode", isProtector)
-                        .putString("protectedUserId", isProtector ? "UsuariaProtegida" : "")
+                        .putString("fullName", user.fullName)
+                        .putString("myUniqueId", user.uniqueId)
+                        .putString("protectedUserId", SesionRolHelper.esProtector(this) ? "UsuariaProtegida" : "")
                         .apply();
 
-                Intent intent = new Intent(sesion.this, MainActivity.class);
-                intent.putExtra("USUARIO", usuarioIngresado);
                 HistorialManager.registrar(this, HistorialManager.TIPO_LOGIN,
                         "Inicio de sesión como " + usuarioIngresado + " (" + user.role + ")");
-
                 SosHelper.guardarUsuarioSesion(this, usuarioIngresado);
 
+                Intent intent = SesionRolHelper.intentMenuPrincipal(sesion.this);
+                intent.putExtra("USUARIO", usuarioIngresado);
                 startActivity(intent);
                 finish();
             } else {
@@ -81,13 +80,11 @@ public class sesion extends AppCompatActivity {
             }
         });
 
-        // Navegación a Crear Cuenta
         btnCrearCuenta.setOnClickListener(v -> {
             Intent intent = new Intent(sesion.this, registro.class);
             startActivity(intent);
         });
 
-        // Navegación a Ingresar como Protector
         btnIngresarProtector.setOnClickListener(v -> {
             Intent intent = new Intent(sesion.this, protector.class);
             startActivity(intent);

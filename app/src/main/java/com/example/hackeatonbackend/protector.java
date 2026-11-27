@@ -15,7 +15,6 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class protector extends AppCompatActivity {
@@ -57,7 +56,6 @@ public class protector extends AppCompatActivity {
                 return;
             }
 
-            // Buscar la usuaria registrada en UserManager por su ID único o nombre de usuario
             UserManager.Usuario usuaria = UserManager.buscarPorUniqueId(this, idProtegido);
 
             if (usuaria == null && !idProtegido.toUpperCase().startsWith("CENTINELA-")) {
@@ -69,20 +67,19 @@ public class protector extends AppCompatActivity {
 
             String idFinal = (usuaria != null) ? usuaria.uniqueId : idProtegido;
 
-            // Guardar datos del protector y su nombre en contactos vinculados
+            SesionRolHelper.guardarRol(this, SesionRolHelper.ROL_PROTECTOR, nombreProtector);
+
             SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
             Set<String> contacts = prefs.getStringSet(KEY_CONTACTS, new HashSet<>());
             Set<String> newContacts = new HashSet<>(contacts);
             newContacts.add(nombreProtector + " (Protector)");
 
             prefs.edit()
-                    .putBoolean("isProtectorMode", true)
                     .putString("protectedUserId", idFinal)
                     .putString("protectorName", nombreProtector)
                     .putStringSet(KEY_CONTACTS, newContacts)
                     .apply();
 
-            // Registrar aviso automático de ingreso ÚNICAMENTE con el NOMBRE del protector (sin mostrar el ID en el chat)
             String avisoIngreso = "🔔 " + nombreProtector + " ha ingresado como protector.";
             HistorialManager.registrar(this, HistorialManager.TIPO_CHAT, "Protector: " + avisoIngreso);
 

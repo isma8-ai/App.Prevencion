@@ -2,20 +2,34 @@ package com.example.hackeatonbackend;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.location.LocationManagerCompat;
 import androidx.core.os.CancellationSignal;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,23 +41,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
-
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -57,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
     private static final String KEY_MY_ID = "myUniqueId";
     private static final String KEY_CONTACTS = "trustedContacts";
 
-    // Minimapa (solo lectura)
     private GoogleMap miniMap;
     private View miniMapView;
     private TextView tvMiniMapaInfo;
@@ -81,6 +77,10 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (SesionRolHelper.redirigirSiEsAdmin(this)) {
+            return;
+        }
+
         WindowCompat.enableEdgeToEdge(getWindow());
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -90,16 +90,15 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
         });
 
         SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        boolean isProtectorMode = prefs.getBoolean("isProtectorMode", false);
+        boolean isProtectorMode = SesionRolHelper.esProtector(this);
         String protectedUserId = prefs.getString("protectedUserId", "");
 
-        // Botones
-        Button button2 = findViewById(R.id.button2); // SOS
-        Button button3 = findViewById(R.id.button3); // Comentario
-        Button button4 = findViewById(R.id.button4); // Ver Mapa
-        Button button5 = findViewById(R.id.button5); // Mi Pulsera
-        Button button6 = findViewById(R.id.button6); // Historial
-        Button button8 = findViewById(R.id.button8); // Acerca de
+        Button button2 = findViewById(R.id.button2);
+        Button button3 = findViewById(R.id.button3);
+        Button button4 = findViewById(R.id.button4);
+        Button button5 = findViewById(R.id.button5);
+        Button button6 = findViewById(R.id.button6);
+        Button button8 = findViewById(R.id.button8);
 
         View cardGuiaProtector = findViewById(R.id.cardGuiaProtector);
         if (cardGuiaProtector != null) {
@@ -107,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
         }
 
         if (isProtectorMode) {
-            // MODO PROTECTOR / ADMIN: Solo mapa y bandeja de mensajes de la usuaria protegida
             if (button2 != null) button2.setVisibility(View.GONE);
             if (button5 != null) button5.setVisibility(View.GONE);
             if (button6 != null) button6.setVisibility(View.GONE);
@@ -116,13 +114,9 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             if (button3 != null) {
                 button3.setText("📥 Bandeja de Alertas (" + (protectedUserId.isEmpty() ? "Protegida" : protectedUserId) + ")");
                 button3.setVisibility(View.VISIBLE);
-                button3.setOnClickListener(v -> {
-                    Intent intent = new Intent(MainActivity.this, BandejaChatActivity.class);
-                    startActivity(intent);
-                });
+                button3.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, BandejaChatActivity.class)));
             }
         } else {
-            // MODO USUARIA NORMAL
             if (button2 != null) {
                 button2.setVisibility(View.VISIBLE);
                 button2.setOnClickListener(v -> mostrarConfirmacionSos());
@@ -130,40 +124,29 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             if (button3 != null) {
                 button3.setVisibility(View.VISIBLE);
                 button3.setText("💬 Chat con Protectores");
-                button3.setOnClickListener(v -> {
-                    Intent intent = new Intent(MainActivity.this, BandejaChatActivity.class);
-                    startActivity(intent);
-                });
+                button3.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, BandejaChatActivity.class)));
             }
             if (button5 != null) {
                 button5.setVisibility(View.VISIBLE);
                 button5.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, pulsera.class)));
             }
-            // Si la pulsera quedó encendida, reconectarla automáticamente
             PulseraManager.get(this).iniciarSiEstaHabilitada();
 
             if (button6 != null) {
                 button6.setVisibility(View.VISIBLE);
-                button6.setOnClickListener(v -> {
-                    Intent intent = new Intent(MainActivity.this, historial.class);
-                    startActivity(intent);
-                });
+                button6.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, historial.class)));
             }
             if (button8 != null) {
                 button8.setVisibility(View.VISIBLE);
+                button8.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, AcercaDeActivity.class)));
             }
         }
 
-        // Botón Ver Mapa siempre visible
         if (button4 != null) {
             button4.setVisibility(View.VISIBLE);
-            button4.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, mapa.class);
-                startActivity(intent);
-            });
+            button4.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, mapa.class)));
         }
 
-        // Botón Menú Superior (☰ Menú) - Oculto para usuarios protectores
         Button btnTopMenu = findViewById(R.id.btnTopMenu);
         if (btnTopMenu != null) {
             if (isProtectorMode) {
@@ -174,20 +157,21 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             }
         }
 
-        // Minimapa de solo lectura
         tvMiniMapaInfo = findViewById(R.id.tvMiniMapaInfo);
         miniMapView = findViewById(R.id.miniMapFragment);
         SupportMapFragment miniFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.miniMapFragment);
         if (miniFragment != null) {
-            miniFragment.getMapAsync(map -> onMiniMapReady(map));
+            miniFragment.getMapAsync(this::onMiniMapReady);
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresca por si se publicaron reportes nuevos desde la pantalla del mapa
+        if (SesionRolHelper.redirigirSiEsAdmin(this)) {
+            return;
+        }
         if (miniMap != null && miniMapaListo) {
             dibujarMinimapa();
         }
@@ -199,25 +183,21 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
         super.onDestroy();
     }
 
-    /** Se llama cuando se sube una marca SOS desde la ficha de emergencia. */
     @Override
     public void onMarcaSosPublicada() {
         if (miniMap != null && miniMapaListo) dibujarMinimapa();
     }
 
-    // ===================== MINIMAPA (solo lectura, radio 100 m) =====================
-
     private void onMiniMapReady(GoogleMap map) {
         miniMap = map;
 
-        // Sin interacción: no se puede mover, hacer zoom ni agregar marcas
         UiSettings ui = miniMap.getUiSettings();
         ui.setAllGesturesEnabled(false);
         ui.setZoomControlsEnabled(false);
         ui.setMyLocationButtonEnabled(false);
         ui.setMapToolbarEnabled(false);
         ui.setCompassEnabled(false);
-        miniMap.setOnMarkerClickListener(marker -> true); // ignora toques en marcas
+        miniMap.setOnMarkerClickListener(marker -> true);
 
         if (tienePermisoUbicacion()) {
             obtenerUbicacionParaMinimapa();
@@ -244,7 +224,6 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             return;
         }
 
-        // 1) Última ubicación conocida, si es reciente (menos de 10 min)
         Location mejor = null;
         try {
             for (String provider : lm.getProviders(true)) {
@@ -264,7 +243,6 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             }
         }
 
-        // 2) Pedir una ubicación actual (con tiempo límite de 8 s)
         solicitarUbicacionActual(lm, mejor);
     }
 
@@ -322,7 +300,6 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
 
         final float radio = MapaDatos.RADIO_MINIMAPA_METROS;
 
-        // Círculo que marca el radio de 100 m
         miniMap.addCircle(new CircleOptions()
                 .center(centroMini)
                 .radius(radio)
@@ -330,7 +307,6 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
                 .strokeWidth(3f)
                 .fillColor(0x141976D2));
 
-        // Puntos calientes dentro del radio (el proveedor falla si la lista está vacía)
         List<LatLng> puntos = MapaDatos.filtrarPorRadio(MapaDatos.obtenerPuntosCalor(this), centroMini, radio);
         if (!puntos.isEmpty()) {
             HeatmapTileProvider provider = new HeatmapTileProvider.Builder()
@@ -341,7 +317,6 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             miniMap.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
         }
 
-        // Marcas de alerta dentro del radio (icono reducido, sin título para no abrir ventanas)
         BitmapDescriptor icono = MapaDatos.crearIconoAlerta(0.5f);
         BitmapDescriptor iconoSos = MapaDatos.crearIconoSos(0.5f);
         int cercanos = 0;
@@ -361,14 +336,12 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             }
         }
 
-        // Redibuja justo cuando venza la próxima marca SOS para que desaparezca sola
         miniHandler.removeCallbacks(redibujarMinimapa);
         if (proximaExpiracion > 0) {
             miniHandler.postDelayed(redibujarMinimapa,
                     Math.max(1000L, proximaExpiracion - System.currentTimeMillis() + 500L));
         }
 
-        // Punto azul de "mi ubicación" (solo visual)
         if (tienePermisoUbicacion()) {
             try {
                 miniMap.setMyLocationEnabled(true);
@@ -376,7 +349,6 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             }
         }
 
-        // Texto informativo
         String reportesTxt = cercanos + (cercanos == 1 ? " reporte" : " reportes");
         if (ubicacionReal) {
             tvMiniMapaInfo.setText("📍 Tu zona (radio de 100 m) · " + reportesTxt + " cerca");
@@ -437,8 +409,7 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
         builder.setTitle("Menú Rápido - Centinela");
         builder.setItems(options, (dialog, which) -> {
             if (which == 0) {
-                Intent intent = new Intent(MainActivity.this, perfil.class);
-                startActivity(intent);
+                startActivity(new Intent(MainActivity.this, perfil.class));
             } else if (which == 1) {
                 showMyIdDialog();
             } else if (which == 2) {
@@ -496,10 +467,7 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             builder.setPositiveButton("Aceptar", null);
         } else {
             String[] items = contactsList.toArray(new String[0]);
-            builder.setItems(items, (dialog, which) -> {
-                String selectedId = items[which];
-                confirmarEliminarContacto(selectedId);
-            });
+            builder.setItems(items, (dialog, which) -> confirmarEliminarContacto(items[which]));
             builder.setPositiveButton("Cerrar", null);
         }
         builder.show();
@@ -523,7 +491,6 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
                     HistorialManager.registrar(this, HistorialManager.TIPO_PERFIL, "Contacto desvinculado: " + selectedContact);
                     Toast.makeText(this, "Contacto \"" + selectedContact + "\" eliminado exitosamente", Toast.LENGTH_SHORT).show();
 
-                    // Mostrar lista actualizada
                     showViewContactsDialog();
                 })
                 .setNegativeButton("Cancelar", null)

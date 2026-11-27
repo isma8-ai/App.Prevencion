@@ -12,11 +12,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Registro local del historial de actividad. Guarda los eventos en SharedPreferences (JSON).
- * Uso desde cualquier Activity:
- *   HistorialManager.registrar(this, HistorialManager.TIPO_SOS, "Alerta SOS activada");
- */
 public class HistorialManager {
 
     public static final String TIPO_LOGIN = "LOGIN";
@@ -67,10 +62,28 @@ public class HistorialManager {
         SharedPreferences prefs = context.getApplicationContext()
                 .getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         String fecha = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
-        try {
-            JSONArray actual = new JSONArray(prefs.getString(KEY_EVENTOS, "[]"));
 
-            // El más reciente va primero
+        SharedPreferences sessionPrefs = context.getApplicationContext()
+                .getSharedPreferences("CentinelaPrefs", Context.MODE_PRIVATE);
+        String usuarioActual = sessionPrefs.getString("usuarioSesion", sessionPrefs.getString("username", ""));
+
+        guardarEnClave(prefs, KEY_EVENTOS, tipo, descripcion, fecha);
+        if (usuarioActual != null && !usuarioActual.isEmpty()) {
+            guardarEnClave(prefs, "eventos_user_" + usuarioActual.toLowerCase(Locale.ROOT), tipo, descripcion, fecha);
+        }
+    }
+
+    public static synchronized void registrarParaUsuario(Context context, String username, String tipo, String descripcion) {
+        if (username == null || username.isEmpty()) return;
+        SharedPreferences prefs = context.getApplicationContext()
+                .getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String fecha = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
+        guardarEnClave(prefs, "eventos_user_" + username.toLowerCase(Locale.ROOT), tipo, descripcion, fecha);
+    }
+
+    private static void guardarEnClave(SharedPreferences prefs, String clave, String tipo, String descripcion, String fecha) {
+        try {
+            JSONArray actual = new JSONArray(prefs.getString(clave, "[]"));
             JSONArray nuevo = new JSONArray();
             JSONObject obj = new JSONObject();
             obj.put("tipo", tipo);
@@ -81,18 +94,37 @@ public class HistorialManager {
             for (int i = 0; i < actual.length() && nuevo.length() < MAX_EVENTOS; i++) {
                 nuevo.put(actual.getJSONObject(i));
             }
-            prefs.edit().putString(KEY_EVENTOS, nuevo.toString()).apply();
+            prefs.edit().putString(clave, nuevo.toString()).apply();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public static synchronized List<Evento> obtener(Context context) {
-        List<Evento> lista = new ArrayList<>();
         SharedPreferences prefs = context.getApplicationContext()
                 .getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return leerDesdeClave(prefs, KEY_EVENTOS);
+    }
+
+    public static synchronized List<Evento> obtenerPorUsuario(Context context, String username) {
+        SharedPreferences prefs = context.getApplicationContext()
+                .getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        List<Evento> propios = leerDesdeClave(prefs, "eventos_user_" + username.toLowerCase(Locale.ROOT));
+        if (!propios.isEmpty()) return propios;
+
+        List<Evento> filtrados = new ArrayList<>();
+        for (Evento e : leerDesdeClave(prefs, KEY_EVENTOS)) {
+            if (e.descripcion != null && e.descripcion.toLowerCase(Locale.ROOT).contains(username.toLowerCase(Locale.ROOT))) {
+                filtrados.add(e);
+            }
+        }
+        return filtrados;
+    }
+
+    private static List<Evento> leerDesdeClave(SharedPreferences prefs, String clave) {
+        List<Evento> lista = new ArrayList<>();
         try {
-            JSONArray array = new JSONArray(prefs.getString(KEY_EVENTOS, "[]"));
+            JSONArray array = new JSONArray(prefs.getString(clave, "[]"));
             for (int i = 0; i < array.length(); i++) {
                 JSONObject o = array.getJSONObject(i);
                 lista.add(new Evento(o.getString("tipo"), o.getString("descripcion"), o.getString("fecha")));

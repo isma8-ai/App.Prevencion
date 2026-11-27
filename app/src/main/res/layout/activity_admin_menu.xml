@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#4A0000"
+    android:fillViewport="true"
+    tools:context=".AdminMenuActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#C62828"
+        android:padding="16dp">
+
+        <!-- Cabecera: Logo, Título, Subtítulo y Botón Menú Usuarios -->
+        <ImageView
+            android:id="@+id/imgLogoAdmin"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_menu_button"
+            android:backgroundTint="#8E0000"
+            android:contentDescription="Logo Centinela Admin"
+            android:padding="6dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/logo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/layoutTitleAdmin"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="@id/imgLogoAdmin"
+            app:layout_constraintEnd_toStartOf="@id/btnAdminGestionUsuarios"
+            app:layout_constraintStart_toEndOf="@id/imgLogoAdmin"
+            app:layout_constraintTop_toTopOf="@id/imgLogoAdmin">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.08"
+                android:text="CENTINELA ADMIN"
+                android:textAlignment="viewStart"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Control total • Modo Administrador"
+                android:textColor="#FFCDD2"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnAdminGestionUsuarios"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_menu_button"
+            android:backgroundTint="#8E0000"
+            android:paddingHorizontal="14dp"
+            android:text="👥 Usuarios"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/imgLogoAdmin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/imgLogoAdmin" />
+
+        <!-- Insignia de Estado Admin -->
+        <LinearLayout
+            android:id="@+id/statusBadgeAdmin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_menu_button"
+            android:backgroundTint="#8E0000"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imgLogoAdmin">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginEnd="6dp"
+                android:background="#FF8A80" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rol ADMIN Activo • Autores Anónimos Visibles"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Botón SOS de Emergencia -->
+        <Button
+            android:id="@+id/btnAdminSos"
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_sos_button"
+            android:backgroundTint="#8E0000"
+            android:text="🚨  ¡SOS! Pide Ayuda"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/statusBadgeAdmin" />
+
+        <!-- Fila 1: Chat Anónimo y Ver Mapa -->
+        <Button
+            android:id="@+id/btnAdminChatAnonimo"
+            android:layout_width="0dp"
+            android:layout_height="58dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_dark_card"
+            android:backgroundTint="#8E0000"
+            android:text="💬 Chat Anónimo"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/btnAdminMapa"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnAdminSos" />
+
+        <Button
+            android:id="@+id/btnAdminMapa"
+            android:layout_width="0dp"
+            android:layout_height="58dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_dark_card"
+            android:backgroundTint="#8E0000"
+            android:text="🗺️ Ver Mapa"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btnAdminChatAnonimo"
+            app:layout_constraintTop_toBottomOf="@id/btnAdminSos" />
+
+        <!-- Fila 2: Mi Pulsera y Historial -->
+        <Button
+            android:id="@+id/btnAdminPulsera"
+            android:layout_width="0dp"
+            android:layout_height="58dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_dark_card"
+            android:backgroundTint="#8E0000"
+            android:text="🛡️ Mi Pulsera"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/btnAdminHistorial"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnAdminChatAnonimo" />
+
+        <Button
+            android:id="@+id/btnAdminHistorial"
+            android:layout_width="0dp"
+            android:layout_height="58dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_dark_card"
+            android:backgroundTint="#8E0000"
+            android:text="📄 Historial"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btnAdminPulsera"
+            app:layout_constraintTop_toBottomOf="@id/btnAdminMapa" />
+
+        <!-- Fila 3: Bandeja de Alertas y Mi Perfil -->
+        <Button
+            android:id="@+id/btnAdminBandeja"
+            android:layout_width="0dp"
+            android:layout_height="58dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_dark_card"
+            android:backgroundTint="#8E0000"
+            android:text="📥 Bandeja SOS"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/btnAdminPerfil"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnAdminPulsera" />
+
+        <Button
+            android:id="@+id/btnAdminPerfil"
+            android:layout_width="0dp"
+            android:layout_height="58dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_dark_card"
+            android:backgroundTint="#8E0000"
+            android:text="👤 Mi Perfil"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btnAdminBandeja"
+            app:layout_constraintTop_toBottomOf="@id/btnAdminHistorial" />
+
+        <!-- Acerca de Centinela -->
+        <Button
+            android:id="@+id/btnAdminAcerca"
+            android:layout_width="0dp"
+            android:layout_height="58dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_dark_card"
+            android:backgroundTint="#8E0000"
+            android:text="⚙️ Acerca de Centinela"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnAdminBandeja" />
+
+        <!-- Cerrar Sesión -->
+        <Button
+            android:id="@+id/btnAdminCerrarSesion"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_menu_button"
+            android:backgroundTint="#4A0000"
+            android:text="Cerrar Sesión"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnAdminAcerca" />
+
+        <!-- Pie de página -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_dark_card"
+            android:backgroundTint="#8E0000"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnAdminCerrarSesion">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🛡️ Administración • Centinela"
+                android:textColor="#FFCDD2"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:text="Asociación de Mujeres Defensoras • Supervisión y Seguridad"
+                android:textColor="#FFEBEE"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
