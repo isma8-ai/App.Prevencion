@@ -12,7 +12,6 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#C299CE"
         android:padding="16dp">
 
         <!-- Top Header: Logo, Title, Subtitle, and Menu Button -->
@@ -205,6 +204,45 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/button3"
             app:layout_constraintTop_toBottomOf="@id/button2" />
+
+        <!-- Protector Guide Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardGuiaProtector"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="#1A1532"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button3">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📖 Guía Rápida para el Protector"
+                    android:textColor="#E040FB"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="🗺️ Ver Mapa:\nMonitorea la ubicación en tiempo real de la usuaria protegida y revisa los puntos de riesgo en el mapa.\n\n📥 Bandeja de Alertas (Chat):\nCanal de chat directo donde recibirás las llamadas SOS, ubicación GPS exacta y ficha médica en caso de emergencia."
+                    android:textColor="#E0E0E0"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <!-- Feature Grid - Row 2 -->
         <Button

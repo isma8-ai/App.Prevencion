@@ -1,7 +1,9 @@
 package com.example.hackeatonbackend;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -84,6 +86,20 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHe
             startActivity(intent);
         });
 
+        Button btnLeyenda = findViewById(R.id.btnLeyendaMapa);
+        btnLeyenda.setOnClickListener(v -> mostrarDialogoLeyendaRojos());
+
+        View cardInstruccion = findViewById(R.id.cardInstruccion);
+        SharedPreferences prefs = getSharedPreferences("CentinelaPrefs", Context.MODE_PRIVATE);
+        boolean isProtectorMode = prefs.getBoolean("isProtectorMode", false);
+        if (cardInstruccion != null) {
+            if (isProtectorMode) {
+                cardInstruccion.setVisibility(View.GONE);
+            } else {
+                cardInstruccion.setVisibility(View.VISIBLE);
+            }
+        }
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapFragment);
         if (mapFragment != null) {
@@ -118,10 +134,34 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHe
 
         agregarMarcadoresDeAlerta();
 
-        // Permitir que el usuario toque cualquier zona del mapa para agregar un reporte anónimo
-        googleMap.setOnMapClickListener(latLng -> mostrarDialogoNuevoReporte(latLng));
+        // Permitir que el usuario toque cualquier zona del mapa para agregar un reporte anónimo (Solo para usuarias normales)
+        SharedPreferences prefs = getSharedPreferences("CentinelaPrefs", Context.MODE_PRIVATE);
+        boolean isProtectorMode = prefs.getBoolean("isProtectorMode", false);
+        if (!isProtectorMode) {
+            googleMap.setOnMapClickListener(latLng -> mostrarDialogoNuevoReporte(latLng));
+        } else {
+            googleMap.setOnMapClickListener(null);
+            String protectedUserId = prefs.getString("protectedUserId", "Usuaria Protegida");
+            LatLng ubicacionTiempoReal = new LatLng(25.7925, -108.9950); // Ubicación en tiempo real de la usuaria protegida
+            googleMap.addMarker(new MarkerOptions()
+                    .position(ubicacionTiempoReal)
+                    .title("🟢 En Tiempo Real: " + protectedUserId)
+                    .snippet("GPS Activo • Monitoreando ubicación en vivo"));
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ubicacionTiempoReal, 14f));
+            Toast.makeText(this, "🔴 Monitoreando ubicación en tiempo real de: " + protectedUserId, Toast.LENGTH_LONG).show();
+        }
 
         verificarPermisoUbicacion();
+    }
+
+    private void mostrarDialogoLeyendaRojos() {
+        new AlertDialog.Builder(this)
+                .setTitle("🔴 ¿Qué son los Puntos Rojos?")
+                .setMessage("Los puntos y marcadores rojos en el mapa representan:\n\n" +
+                        "1. **Zonas de Riesgo:** Áreas reportadas por la comunidad como peligrosas (falta de iluminación, zonas solitarias, etc.).\n\n" +
+                        "2. **Alertas SOS:** Ubicaciones exactas donde se han activado llamadas de emergencia o marcas SOS recientes.")
+                .setPositiveButton("Entendido", null)
+                .show();
     }
 
     private void agregarMarcadorAlMapa(ReporteMarcador reporte) {

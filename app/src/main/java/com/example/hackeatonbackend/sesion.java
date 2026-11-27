@@ -1,6 +1,8 @@
 package com.example.hackeatonbackend;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,9 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class sesion extends AppCompatActivity {
 
-    // PERFILES
-    String nme = "User";
-    String psw = "123123";
+    private static final String PREF_NAME = "CentinelaPrefs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,10 +30,15 @@ public class sesion extends AppCompatActivity {
         });
 
         EditText etUsuario = findViewById(R.id.editTextText);
-        EditText etPassword = findViewById(R.id.editTextTextPassword); // <-- Paréntesis cerrado
+        EditText etPassword = findViewById(R.id.editTextTextPassword);
         Button btnEntrar = findViewById(R.id.button);
+        Button btnCrearCuenta = findViewById(R.id.btnCrearCuenta);
+        Button btnIngresarProtector = findViewById(R.id.btnIngresarProtector);
 
-        // Validar al hacer clic en el botón
+        // Inicializar usuarios por defecto en UserManager
+        UserManager.inicializarUsuariosPorDefecto(this);
+
+        // Validar al hacer clic en el botón de iniciar sesión con UserManager
         btnEntrar.setOnClickListener(v -> {
             String usuarioIngresado = etUsuario.getText().toString().trim();
             String passwordIngresada = etPassword.getText().toString().trim();
@@ -50,14 +55,22 @@ public class sesion extends AppCompatActivity {
                 return;
             }
 
-            if (usuarioIngresado.equals(nme) && passwordIngresada.equals(psw)) {
-                Toast.makeText(this, "Bienvenido, " + nme, Toast.LENGTH_SHORT).show();
+            UserManager.Usuario user = UserManager.validarLogin(this, usuarioIngresado, passwordIngresada);
 
-                // Cambia MainActivity.class por la Activity a la que quieras avanzar
+            if (user != null) {
+                Toast.makeText(this, "Bienvenido, " + user.fullName + " [" + user.role + "]", Toast.LENGTH_SHORT).show();
+
+                boolean isProtector = user.role.equals("PROTECTOR");
+                SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+                prefs.edit()
+                        .putBoolean("isProtectorMode", isProtector)
+                        .putString("protectedUserId", isProtector ? "UsuariaProtegida" : "")
+                        .apply();
+
                 Intent intent = new Intent(sesion.this, MainActivity.class);
                 intent.putExtra("USUARIO", usuarioIngresado);
                 HistorialManager.registrar(this, HistorialManager.TIPO_LOGIN,
-                        "Inicio de sesión como " + usuarioIngresado);
+                        "Inicio de sesión como " + usuarioIngresado + " (" + user.role + ")");
 
                 SosHelper.guardarUsuarioSesion(this, usuarioIngresado);
 
@@ -66,6 +79,18 @@ public class sesion extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        // Navegación a Crear Cuenta
+        btnCrearCuenta.setOnClickListener(v -> {
+            Intent intent = new Intent(sesion.this, registro.class);
+            startActivity(intent);
+        });
+
+        // Navegación a Ingresar como Protector
+        btnIngresarProtector.setOnClickListener(v -> {
+            Intent intent = new Intent(sesion.this, protector.class);
+            startActivity(intent);
         });
     }
 }

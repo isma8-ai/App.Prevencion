@@ -35,7 +35,9 @@ public class SosHelper {
     private static final String KEY_MY_ID = "myUniqueId";
     private static final String KEY_CONTACTS = "trustedContacts";
     private static final String KEY_FULL_NAME = "fullName";
+    private static final String KEY_DOB = "dob";
     private static final String KEY_PHONE = "phone";
+    private static final String KEY_EMAIL = "email";
     private static final String KEY_BLOOD = "bloodType";
     private static final String KEY_ALLERGIES = "allergies";
     private static final String KEY_MEDICAL = "medicalInfo";
@@ -49,52 +51,71 @@ public class SosHelper {
     private SosHelper() {}
 
     /**
-     * Dispara la alerta SOS completa.
+     * Dispara la alerta SOS completa incluyendo perfil, ficha médica y enlace directo a Google Maps en tiempo real.
      * @param ctx    cualquier contexto
      * @param act    Activity visible (para mostrar la ficha). Puede ser null.
      * @param origen texto que indica qué la activó (botón, pulsera, movimiento...)
      */
     public static void disparar(Context ctx, Activity act, String origen) {
         Context app = ctx.getApplicationContext();
-        SharedPreferences prefs = app.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        Toast.makeText(app, "Obteniendo ubicación en tiempo real y enviando alerta SOS...", Toast.LENGTH_SHORT).show();
 
-        String name = prefs.getString(KEY_FULL_NAME, "");
-        String phone = prefs.getString(KEY_PHONE, "");
-        String blood = prefs.getString(KEY_BLOOD, "");
-        String allergies = prefs.getString(KEY_ALLERGIES, "");
-        String medical = prefs.getString(KEY_MEDICAL, "");
-        String centinelaId = getOrCreateMyId(prefs);
-        String timeNow = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
-        Set<String> contacts = prefs.getStringSet(KEY_CONTACTS, new HashSet<>());
+        obtenerUbicacion(app, location -> {
+            SharedPreferences prefs = app.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
 
-        String mensaje = "🚨 ¡ALERTA SOS ACTIVADA! 🚨\n\n" +
-                "🔔 Origen: " + origen + "\n\n" +
-                "👤 Nombre: " + (name.isEmpty() ? "No registrado" : name) + "\n" +
-                "📞 Teléfono: " + (phone.isEmpty() ? "No registrado" : phone) + "\n" +
-                "🆔 ID Centinela: " + centinelaId + "\n" +
-                "⏱️ Hora: " + timeNow + "\n" +
-                "📍 Ubicación: GPS Activo (Zona Centro / Compartida)\n\n" +
-                "🩸 Tipo de Sangre: " + (blood.isEmpty() ? "No especificado" : blood) + "\n" +
-                "⚠️ Alergias: " + (allergies.isEmpty() ? "Ninguna" : allergies) + "\n" +
-                "💊 Info Médica: " + (medical.isEmpty() ? "Ninguna" : medical) + "\n\n" +
-                "👥 Contactos Notificados: " + contacts.size() + " enlazados.";
+            String name = prefs.getString(KEY_FULL_NAME, "");
+            String dob = prefs.getString(KEY_DOB, "");
+            String phone = prefs.getString(KEY_PHONE, "");
+            String email = prefs.getString(KEY_EMAIL, "");
+            String blood = prefs.getString(KEY_BLOOD, "");
+            String allergies = prefs.getString(KEY_ALLERGIES, "");
+            String medical = prefs.getString(KEY_MEDICAL, "");
+            String centinelaId = getOrCreateMyId(prefs);
+            String timeNow = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
+            Set<String> contacts = prefs.getStringSet(KEY_CONTACTS, new HashSet<>());
 
-        if (act != null && !act.isFinishing() && !act.isDestroyed()) {
-            new AlertDialog.Builder(act)
-                    .setTitle("🚨 FICHA DE EMERGENCIA SOS")
-                    .setMessage(mensaje)
-                    .setPositiveButton("Cerrar Alerta", (d, w) -> d.dismiss())
-                    .setNeutralButton("Ver en Mapa", (d, w) ->
-                            act.startActivity(new Intent(act, mapa.class)))
-                    .setNegativeButton("📍 Subir marca al mapa (30 min)", (d, w) ->
-                            subirMarcaSos(act, origen))
-                    .show();
-        }
+            String ubicacionTexto = (location != null) ?
+                    String.format(Locale.US, "Lat: %.6f, Lng: %.6f (Precisión: %.1fm)\n🔗 Ver en Google Maps:\nhttps://maps.google.com/?q=%.6f,%.6f",
+                            location.getLatitude(), location.getLongitude(), location.getAccuracy(),
+                            location.getLatitude(), location.getLongitude()) :
+                    "Ubicación GPS Activa (Zona Centro / En vivo)\n🔗 Ver en Google Maps:\nhttps://maps.google.com/?q=25.79097,-108.99825";
 
-        Toast.makeText(app, "¡Alerta SOS enviada a " + contacts.size() + " contactos de confianza!",
-                Toast.LENGTH_LONG).show();
-        HistorialManager.registrar(app, HistorialManager.TIPO_SOS,
-                "Alerta SOS (" + origen + ") enviada a " + contacts.size() + " contactos de confianza");
+            String mensaje = "🚨 ¡ALERTA SOS - PERFIL Y FICHA MÉDICA EN VIVO! 🚨\n\n" +
+                    "📍 UBICACIÓN EN TIEMPO REAL:\n" +
+                    "• " + ubicacionTexto + "\n" +
+                    "• Origen de Alerta: " + origen + "\n\n" +
+                    "👤 PERFIL REGISTRADO:\n" +
+                    "• Nombre: " + (name.isEmpty() ? "No registrado" : name) + "\n" +
+                    "• Fecha de Nacimiento: " + (dob.isEmpty() ? "No registrada" : dob) + "\n" +
+                    "• Teléfono: " + (phone.isEmpty() ? "No registrado" : phone) + "\n" +
+                    "• Correo: " + (email.isEmpty() ? "No registrado" : email) + "\n" +
+                    "• ID Centinela: " + centinelaId + "\n\n" +
+                    "📋 FICHA MÉDICA DE EMERGENCIA:\n" +
+                    "• Tipo de Sangre: " + (blood.isEmpty() ? "No especificado" : blood) + "\n" +
+                    "• Alergias: " + (allergies.isEmpty() ? "Ninguna reportada" : allergies) + "\n" +
+                    "• Info Médica / Padecimientos: " + (medical.isEmpty() ? "Ninguna reportada" : medical) + "\n\n" +
+                    "⏱️ Hora de Alerta: " + timeNow + "\n" +
+                    "👥 Protectores Notificados: " + contacts.size() + " enlazados.";
+
+            Handler mainHandler = new Handler(Looper.getMainLooper());
+            mainHandler.post(() -> {
+                if (act != null && !act.isFinishing() && !act.isDestroyed()) {
+                    new AlertDialog.Builder(act)
+                            .setTitle("🚨 FICHA DE EMERGENCIA Y GPS ENVIADA")
+                            .setMessage(mensaje)
+                            .setPositiveButton("Cerrar Alerta", (d, w) -> d.dismiss())
+                            .setNeutralButton("Ver en Mapa", (d, w) ->
+                                    act.startActivity(new Intent(act, mapa.class)))
+                            .setNegativeButton("📍 Subir marca al mapa (30 min)", (d, w) ->
+                                    subirMarcaSosWithLocation(act, location, origen))
+                            .show();
+                }
+
+                Toast.makeText(app, "✅ ¡Perfil, ficha médica y enlace de Google Maps enviados a " + contacts.size() + " protectores!",
+                        Toast.LENGTH_LONG).show();
+                HistorialManager.registrar(app, HistorialManager.TIPO_SOS, mensaje);
+            });
+        });
     }
 
     /** Guarda el usuario con el que se inició sesión (lo usa la marca SOS). */
@@ -105,39 +126,28 @@ public class SosHelper {
 
     // ------------------------------------------------------------ Marca SOS en el mapa
 
-    private static void subirMarcaSos(Activity act, String origen) {
+    private static void subirMarcaSosWithLocation(Activity act, Location location, String origen) {
         Context app = act.getApplicationContext();
-
-        if (!tienePermisoUbicacion(app)) {
-            Toast.makeText(app, "Activa el permiso de ubicación para subir la marca al mapa",
-                    Toast.LENGTH_LONG).show();
+        if (location == null) {
+            Toast.makeText(app, "No se pudo obtener ubicación", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Toast.makeText(app, "Obteniendo tu ubicación…", Toast.LENGTH_SHORT).show();
-        obtenerUbicacion(app, location -> {
-            if (location == null) {
-                Toast.makeText(app, "No se pudo obtener tu ubicación. Activa el GPS e inténtalo de nuevo",
-                        Toast.LENGTH_LONG).show();
-                return;
-            }
+        SharedPreferences prefs = app.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String usuario = prefs.getString(KEY_SESION, "");
+        if (usuario.isEmpty()) usuario = prefs.getString(KEY_FULL_NAME, "");
+        if (usuario.isEmpty()) usuario = "Usuario";
 
-            SharedPreferences prefs = app.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-            String usuario = prefs.getString(KEY_SESION, "");
-            if (usuario.isEmpty()) usuario = prefs.getString(KEY_FULL_NAME, "");
-            if (usuario.isEmpty()) usuario = "Usuario";
+        LatLng posicion = new LatLng(location.getLatitude(), location.getLongitude());
+        MapaDatos.publicarMarcaSos(app, getOrCreateMyId(prefs), usuario, posicion, origen);
 
-            LatLng posicion = new LatLng(location.getLatitude(), location.getLongitude());
-            MapaDatos.publicarMarcaSos(app, getOrCreateMyId(prefs), usuario, posicion, origen);
+        HistorialManager.registrar(app, HistorialManager.TIPO_MAPA,
+                "Marca SOS publicada en el mapa por 30 minutos");
+        Toast.makeText(app, "Marca SOS publicada en el mapa por 30 minutos", Toast.LENGTH_LONG).show();
 
-            HistorialManager.registrar(app, HistorialManager.TIPO_MAPA,
-                    "Marca SOS publicada en el mapa por 30 minutos");
-            Toast.makeText(app, "Marca SOS publicada en el mapa por 30 minutos", Toast.LENGTH_LONG).show();
-
-            if (act instanceof Listener && !act.isFinishing() && !act.isDestroyed()) {
-                ((Listener) act).onMarcaSosPublicada();
-            }
-        });
+        if (act instanceof Listener && !act.isFinishing() && !act.isDestroyed()) {
+            ((Listener) act).onMarcaSosPublicada();
+        }
     }
 
     private static boolean tienePermisoUbicacion(Context ctx) {

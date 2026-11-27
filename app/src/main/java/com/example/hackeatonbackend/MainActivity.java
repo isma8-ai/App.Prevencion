@@ -89,42 +89,89 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             return insets;
         });
 
-        // Botón SOS | Pedir Ayuda (Activa Ficha de Emergencia y Alerta)
-        Button button2 = findViewById(R.id.button2);
-        button2.setOnClickListener(v -> triggerSosEmergencyCard());
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        boolean isProtectorMode = prefs.getBoolean("isProtectorMode", false);
+        String protectedUserId = prefs.getString("protectedUserId", "");
 
-        // Botón Comentario / Muro Anónimo
-        Button button3 = findViewById(R.id.button3);
-        button3.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, chat.class);
-            startActivity(intent);
-        });
+        // Botones
+        Button button2 = findViewById(R.id.button2); // SOS
+        Button button3 = findViewById(R.id.button3); // Comentario
+        Button button4 = findViewById(R.id.button4); // Ver Mapa
+        Button button5 = findViewById(R.id.button5); // Mi Pulsera
+        Button button6 = findViewById(R.id.button6); // Historial
+        Button button8 = findViewById(R.id.button8); // Acerca de
 
-        // Botón Ver Mapa
-        Button button4 = findViewById(R.id.button4);
-        button4.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, mapa.class);
-            startActivity(intent);
-        });
+        View cardGuiaProtector = findViewById(R.id.cardGuiaProtector);
+        if (cardGuiaProtector != null) {
+            cardGuiaProtector.setVisibility(isProtectorMode ? View.VISIBLE : View.GONE);
+        }
 
-        // Botón Mi Pulsera
-        Button button5 = findViewById(R.id.button5);
-        button5.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, pulsera.class)));
+        if (isProtectorMode) {
+            // MODO PROTECTOR / ADMIN: Solo mapa y bandeja de mensajes de la usuaria protegida
+            if (button2 != null) button2.setVisibility(View.GONE);
+            if (button5 != null) button5.setVisibility(View.GONE);
+            if (button6 != null) button6.setVisibility(View.GONE);
+            if (button8 != null) button8.setVisibility(View.GONE);
 
-        // Si la pulsera quedó encendida, reconectarla automáticamente
-        PulseraManager.get(this).iniciarSiEstaHabilitada();
+            if (button3 != null) {
+                button3.setText("📥 Bandeja de Alertas (" + (protectedUserId.isEmpty() ? "Protegida" : protectedUserId) + ")");
+                button3.setVisibility(View.VISIBLE);
+                button3.setOnClickListener(v -> {
+                    Intent intent = new Intent(MainActivity.this, BandejaChatActivity.class);
+                    startActivity(intent);
+                });
+            }
+        } else {
+            // MODO USUARIA NORMAL
+            if (button2 != null) {
+                button2.setVisibility(View.VISIBLE);
+                button2.setOnClickListener(v -> mostrarConfirmacionSos());
+            }
+            if (button3 != null) {
+                button3.setVisibility(View.VISIBLE);
+                button3.setText("💬 Chat con Protectores");
+                button3.setOnClickListener(v -> {
+                    Intent intent = new Intent(MainActivity.this, BandejaChatActivity.class);
+                    startActivity(intent);
+                });
+            }
+            if (button5 != null) {
+                button5.setVisibility(View.VISIBLE);
+                button5.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, pulsera.class)));
+            }
+            // Si la pulsera quedó encendida, reconectarla automáticamente
+            PulseraManager.get(this).iniciarSiEstaHabilitada();
 
-        // Botón Historial
-        Button button6 = findViewById(R.id.button6);
-        button6.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, historial.class);
-            startActivity(intent);
-        });
+            if (button6 != null) {
+                button6.setVisibility(View.VISIBLE);
+                button6.setOnClickListener(v -> {
+                    Intent intent = new Intent(MainActivity.this, historial.class);
+                    startActivity(intent);
+                });
+            }
+            if (button8 != null) {
+                button8.setVisibility(View.VISIBLE);
+            }
+        }
 
-        // Botón Menú Superior (☰ Menú)
+        // Botón Ver Mapa siempre visible
+        if (button4 != null) {
+            button4.setVisibility(View.VISIBLE);
+            button4.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, mapa.class);
+                startActivity(intent);
+            });
+        }
+
+        // Botón Menú Superior (☰ Menú) - Oculto para usuarios protectores
         Button btnTopMenu = findViewById(R.id.btnTopMenu);
         if (btnTopMenu != null) {
-            btnTopMenu.setOnClickListener(v -> showQuickMenuDialog());
+            if (isProtectorMode) {
+                btnTopMenu.setVisibility(View.GONE);
+            } else {
+                btnTopMenu.setVisibility(View.VISIBLE);
+                btnTopMenu.setOnClickListener(v -> showQuickMenuDialog());
+            }
         }
 
         // Minimapa de solo lectura
@@ -371,12 +418,21 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
         return myId;
     }
 
+    private void mostrarConfirmacionSos() {
+        new AlertDialog.Builder(this)
+                .setTitle("🚨 Confirmación de Alerta SOS")
+                .setMessage("¿Deseas enviar la alerta SOS con tu ubicación en tiempo real y ficha médica a tus protectores y familiares enlazados?")
+                .setPositiveButton("Sí, Enviar Alerta", (dialog, which) -> triggerSosEmergencyCard())
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
     private void triggerSosEmergencyCard() {
         SosHelper.disparar(this, this, "Botón SOS de la pantalla");
     }
 
     private void showQuickMenuDialog() {
-        String[] options = {"👤 Mi Perfil y Ficha Médica", "➕ Agregar Contacto por ID", "🆔 Ver Mi ID Único", "👥 Ver Mis Contactos Vinculados"};
+        String[] options = {"👤 Mi Perfil y Ficha Médica", "📋 Ver y Copiar Mi ID Único", "👥 Ver Mis Contactos Vinculados"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Menú Rápido - Centinela");
         builder.setItems(options, (dialog, which) -> {
@@ -384,68 +440,56 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
                 Intent intent = new Intent(MainActivity.this, perfil.class);
                 startActivity(intent);
             } else if (which == 1) {
-                showAddContactDialog();
-            } else if (which == 2) {
                 showMyIdDialog();
-            } else if (which == 3) {
+            } else if (which == 2) {
                 showViewContactsDialog();
             }
         });
         builder.show();
     }
 
-    private void showAddContactDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Vincular Contacto de Confianza");
-
-        final EditText input = new EditText(this);
-        input.setHint("Ingresa el ID del usuario...");
-        builder.setView(input);
-
-        builder.setPositiveButton("Vincular", (dialog, which) -> {
-            String contactId = input.getText().toString().trim();
-            if (!contactId.isEmpty()) {
-                SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-                Set<String> contacts = prefs.getStringSet(KEY_CONTACTS, new HashSet<>());
-                Set<String> newContacts = new HashSet<>(contacts);
-                if (newContacts.add(contactId)) {
-                    prefs.edit().putStringSet(KEY_CONTACTS, newContacts).apply();
-                    Toast.makeText(this, "Contacto vinculado: " + contactId, Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "Este contacto ya está vinculado", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(this, "ID inválido", Toast.LENGTH_SHORT).show();
-            }
-        });
-        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
-        builder.show();
-    }
-
     private void showMyIdDialog() {
         String myId = getOrCreateMyId();
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard != null) {
+            ClipData clip = ClipData.newPlainText("ID Centinela", myId);
+            clipboard.setPrimaryClip(clip);
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Mi ID Único");
-        builder.setMessage("Comparte este ID para vincularte:\n\n" + myId);
-        builder.setPositiveButton("Copiar", (dialog, which) -> {
-            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        builder.setTitle("🆔 Mi ID Único");
+        builder.setMessage("¡ID copiado al portapapeles!\n\nTu ID:\n" + myId + "\n\nComparte este ID con tus protectores para que puedan enlazarse contigo.");
+        builder.setPositiveButton("Copiar de nuevo", (dialog, which) -> {
             if (clipboard != null) {
                 ClipData clip = ClipData.newPlainText("ID Centinela", myId);
                 clipboard.setPrimaryClip(clip);
                 Toast.makeText(this, "ID copiado al portapapeles", Toast.LENGTH_SHORT).show();
             }
         });
-        builder.setNegativeButton("Cerrar", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton("Cerrar", null);
         builder.show();
     }
 
     private void showViewContactsDialog() {
         SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         Set<String> contactsSet = prefs.getStringSet(KEY_CONTACTS, new HashSet<>());
-        List<String> contactsList = new ArrayList<>(contactsSet);
+
+        List<UserManager.Usuario> usuarios = UserManager.obtenerUsuarios(this);
+        List<String> contactsList = new ArrayList<>();
+
+        for (String contact : contactsSet) {
+            String displayName = contact;
+            for (UserManager.Usuario u : usuarios) {
+                if (u.username.equalsIgnoreCase(contact)) {
+                    displayName = u.fullName + " (" + u.username + ")";
+                    break;
+                }
+            }
+            contactsList.add(displayName);
+        }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Contactos Vinculados");
+        builder.setTitle("👥 Contactos Vinculados (Toca para Borrar)");
 
         if (contactsList.isEmpty()) {
             builder.setMessage("Aún no tienes contactos vinculados.");
@@ -454,10 +498,35 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             String[] items = contactsList.toArray(new String[0]);
             builder.setItems(items, (dialog, which) -> {
                 String selectedId = items[which];
-                Toast.makeText(this, "Contacto: " + selectedId, Toast.LENGTH_SHORT).show();
+                confirmarEliminarContacto(selectedId);
             });
             builder.setPositiveButton("Cerrar", null);
         }
         builder.show();
+    }
+
+    private void confirmarEliminarContacto(String selectedContact) {
+        new AlertDialog.Builder(this)
+                .setTitle("🗑️ Borrar Contacto Vinculado")
+                .setMessage("¿Estás segura/o de que deseas eliminar a \"" + selectedContact + "\" de tu lista de contactos vinculados?")
+                .setPositiveButton("Eliminar", (dialog, which) -> {
+                    SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+                    Set<String> contactsSet = prefs.getStringSet(KEY_CONTACTS, new HashSet<>());
+                    Set<String> newContacts = new HashSet<>(contactsSet);
+
+                    String rawId = selectedContact.replaceAll("\\s*\\(.*\\)", "").trim();
+                    newContacts.remove(selectedContact);
+                    newContacts.remove(rawId);
+
+                    prefs.edit().putStringSet(KEY_CONTACTS, newContacts).apply();
+
+                    HistorialManager.registrar(this, HistorialManager.TIPO_PERFIL, "Contacto desvinculado: " + selectedContact);
+                    Toast.makeText(this, "Contacto \"" + selectedContact + "\" eliminado exitosamente", Toast.LENGTH_SHORT).show();
+
+                    // Mostrar lista actualizada
+                    showViewContactsDialog();
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 }

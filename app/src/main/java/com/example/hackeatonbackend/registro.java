@@ -1,0 +1,77 @@
+package com.example.hackeatonbackend;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+public class registro extends AppCompatActivity {
+
+    private static final String PREF_NAME = "CentinelaPrefs";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        WindowCompat.enableEdgeToEdge(getWindow());
+        setContentView(R.layout.activity_registro);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        EditText etNombre = findViewById(R.id.etNombreReg);
+        EditText etUsuario = findViewById(R.id.etUsuarioReg);
+        EditText etPassword = findViewById(R.id.etPasswordReg);
+        Button btnRegistrar = findViewById(R.id.btnRegistrar);
+        Button btnVolver = findViewById(R.id.btnVolverLogin);
+
+        btnRegistrar.setOnClickListener(v -> {
+            String nombre = etNombre.getText().toString().trim();
+            String usuario = etUsuario.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+
+            if (nombre.isEmpty() || usuario.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Registrar nueva usuaria en UserManager con ID aleatorio único generado automáticamente
+            UserManager.Usuario nuevoUser = UserManager.registrarNuevaUsuaria(this, usuario, password, nombre);
+
+            // Guardar datos de la sesión actual en SharedPreferences
+            SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+            prefs.edit()
+                    .putBoolean("isProtectorMode", false)
+                    .putString("fullName", nombre)
+                    .putString("username", usuario)
+                    .putString("password", password)
+                    .putString("myUniqueId", nuevoUser.uniqueId)
+                    .apply();
+
+            Toast.makeText(this, "¡Cuenta creada con éxito! Tu ID es: " + nuevoUser.uniqueId, Toast.LENGTH_LONG).show();
+
+            HistorialManager.registrar(this, HistorialManager.TIPO_LOGIN, "Registro de nueva cuenta: " + usuario + " (ID: " + nuevoUser.uniqueId + ")");
+            SosHelper.guardarUsuarioSesion(this, usuario);
+
+            Intent intent = new Intent(registro.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        btnVolver.setOnClickListener(v -> {
+            Intent intent = new Intent(registro.this, sesion.class);
+            startActivity(intent);
+            finish();
+        });
+    }
+}

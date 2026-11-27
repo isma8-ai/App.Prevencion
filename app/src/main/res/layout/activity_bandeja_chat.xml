@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#070A14"
+    tools:context=".BandejaChatActivity">
+
+    <!-- Top Bar Chat Header -->
+    <LinearLayout
+        android:id="@+id/topBarChat"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:background="#16122B"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/logo"
+            android:background="@drawable/bg_menu_button"
+            android:scaleType="centerCrop"
+            android:padding="4dp"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="Chat Logo" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="💬 Chat de Alertas y SOS"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🟢 En línea • Monitoreo seguro"
+                android:textColor="#00E676"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnRegresarChat"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:text="Regresar"
+            android:textSize="12sp"
+            android:background="@drawable/bg_menu_button"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+
+    <!-- Empty State View (Shown when no alerts) -->
+    <LinearLayout
+        android:id="@+id/layoutEmptyChat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottomInputBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBarChat">
+
+        <TextView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:background="@drawable/bg_menu_button"
+            android:gravity="center"
+            android:text="💬"
+            android:textSize="36sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="Chat de Alertas Vacío"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="¿Para qué sirve este chat?\n\nEste es tu canal de comunicación directa con la usuaria que estás protegiendo. Aquí aparecerán en tiempo real los mensajes de emergencia, ubicación GPS y alertas SOS cuando se activen.\n\nActualmente no hay alertas activas. El chat está en espera."
+            android:textColor="#B0BEC5"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- Chat Messages ListView -->
+    <ListView
+        android:id="@+id/listChatAlertas"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:divider="@null"
+        android:dividerHeight="8dp"
+        android:padding="16dp"
+        android:stackFromBottom="true"
+        android:transcriptMode="alwaysScroll"
+        app:layout_constraintBottom_toTopOf="@id/bottomInputBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBarChat" />
+
+    <!-- Bottom Chat Input Bar -->
+    <LinearLayout
+        android:id="@+id/bottomInputBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#16122B"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <EditText
+            android:id="@+id/etChatInput"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_dark_card"
+            android:hint="Escribe un mensaje..."
+            android:textColor="#FFFFFF"
+            android:textColorHint="#9E9E9E"
+            android:textSize="14sp"
+            android:paddingHorizontal="14dp"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/btnEnviarChat"
+            android:layout_width="wrap_content"
+            android:layout_height="46dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_menu_button"
+            android:text="Enviar 🚀"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
