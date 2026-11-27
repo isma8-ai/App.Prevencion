@@ -25,7 +25,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="12dp"
-        app:cardBackgroundColor="#FFF3E0"
+        app:cardBackgroundColor="#D8BFD8"
         app:cardCornerRadius="12dp"
         app:cardElevation="4dp"
         app:layout_constraintBottom_toTopOf="@id/button9"
@@ -42,7 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="💡 ¿Conoces una zona de riesgo?"
-                android:textColor="#E65100"
+                android:textColor="#700483"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -51,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Toca directamente cualquier punto del mapa para reportar un incidente o zona peligrosa de forma anónima."
-                android:textColor="#37474F"
+                android:textColor="#1E293B"
                 android:textSize="12sp" />
 
         </LinearLayout>
@@ -63,7 +63,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
+        android:backgroundTint="#5D4894"
         android:text="Regresar"
+        android:textColor="#FFFFFF"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -75,7 +77,9 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+        android:backgroundTint="#5D4894"
         android:text="ℹ️ Puntos Rojos"
+        android:textColor="#FFFFFF"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -3,7 +3,6 @@ package com.example.hackeatonbackend;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -62,13 +61,7 @@ public class chat extends AppCompatActivity {
         TextView tvPrivacyNotice = findViewById(R.id.tvPrivacyNotice);
 
         if (isAdmin) {
-            findViewById(R.id.main).setBackgroundColor(Color.parseColor("#C62828"));
-            tvPrivacyNotice.setBackgroundColor(Color.parseColor("#FFCDD2"));
-            tvPrivacyNotice.setTextColor(Color.parseColor("#8E0000"));
             tvPrivacyNotice.setText("🔓 Vista Admin: Se muestra el nombre de usuario de autores en reportes anónimos.");
-            listViewMessages.setBackgroundColor(Color.parseColor("#FFCDD2"));
-            etMessage.setBackgroundColor(Color.parseColor("#FFCDD2"));
-            btnSend.setBackgroundColor(Color.parseColor("#8E0000"));
         }
 
         mensajesData.add(new MensajeComunitario(

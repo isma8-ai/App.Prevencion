@@ -2,10 +2,8 @@ package com.example.hackeatonbackend;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -83,19 +81,12 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHe
 
         SharedPreferences prefs = getSharedPreferences("CentinelaPrefs", Context.MODE_PRIVATE);
         boolean isProtectorMode = prefs.getBoolean("isProtectorMode", false);
-        boolean isAdminMode = prefs.getBoolean("isAdminMode", false);
 
         Button button9 = findViewById(R.id.button9);
         button9.setOnClickListener(v -> finish());
 
         Button btnLeyenda = findViewById(R.id.btnLeyendaMapa);
         btnLeyenda.setOnClickListener(v -> mostrarDialogoLeyendaRojos());
-
-        if (isAdminMode) {
-            findViewById(R.id.main).setBackgroundColor(Color.parseColor("#C62828"));
-            button9.setBackgroundColor(Color.parseColor("#8E0000"));
-            btnLeyenda.setBackgroundColor(Color.parseColor("#8E0000"));
-        }
 
         View cardInstruccion = findViewById(R.id.cardInstruccion);
         if (cardInstruccion != null) {
