@@ -25,28 +25,29 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="#FFFFFF"
                 android:text="Mi Perfil y Ficha de Emergencia"
-                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <Button
                 android:id="@+id/btnSaveTop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#2E647D"
+                android:backgroundTint="#5D4894"
                 android:text="Guardar"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp" />
+                android:textSize="16sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textColor="#FFFFFF"
             android:text="ID CENTINELA (Único):"
-            android:textSize="12sp"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
@@ -54,12 +55,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:background="#F6E7FF"
+            android:background="#D8BFD8"
             android:fontFamily="sans-serif"
             android:padding="10dp"
             android:text="CENTINELA-0000"
             android:textAlignment="center"
-            android:textColor="#4A148C"
+            android:textColor="#700483"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -68,7 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Información Personal"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <EditText
@@ -76,51 +77,51 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="#F6E7FF"
-            android:padding="12dp"
-            android:textColor="#1E293B"
+            android:background="#D8BFD8"
             android:hint="Nombre y apellidos"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:padding="12dp"
+            android:textColor="#1E293B" />
 
         <EditText
             android:id="@+id/etDob"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="#F6E7FF"
-            android:padding="12dp"
-            android:textColor="#1E293B"
+            android:background="#D8BFD8"
             android:hint="Fecha de nacimiento (DD/MM/AAAA)"
-            android:inputType="date" />
+            android:inputType="date"
+            android:padding="12dp"
+            android:textColor="#1E293B" />
 
         <EditText
             android:id="@+id/etPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="#F6E7FF"
-            android:padding="12dp"
-            android:textColor="#1E293B"
+            android:background="#D8BFD8"
             android:hint="Número de teléfono"
-            android:inputType="phone" />
+            android:inputType="phone"
+            android:padding="12dp"
+            android:textColor="#1E293B" />
 
         <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="#F6E7FF"
-            android:padding="12dp"
-            android:textColor="#1E293B"
+            android:background="#D8BFD8"
             android:hint="Correo electrónico"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            android:padding="12dp"
+            android:textColor="#1E293B" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Ficha Médica de Emergencia (Opcional)"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <EditText
@@ -128,40 +129,40 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="#F6E7FF"
-            android:padding="12dp"
-            android:textColor="#1E293B"
+            android:background="#D8BFD8"
             android:hint="Tipo de sangre (ej. O+, A-, etc.)"
-            android:inputType="text" />
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColor="#1E293B" />
 
         <EditText
             android:id="@+id/etAllergies"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="#F6E7FF"
-            android:padding="12dp"
-            android:textColor="#1E293B"
+            android:background="#D8BFD8"
             android:hint="Alergias (ej. Penicilina, ningún)"
-            android:inputType="textMultiLine" />
+            android:inputType="textMultiLine"
+            android:padding="12dp"
+            android:textColor="#1E293B" />
 
         <EditText
             android:id="@+id/etMedicalInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="#F6E7FF"
-            android:padding="12dp"
-            android:textColor="#1E293B"
+            android:background="#D8BFD8"
             android:hint="Información médica relevante (condiciones, medicamentos)"
-            android:inputType="textMultiLine" />
+            android:inputType="textMultiLine"
+            android:padding="12dp"
+            android:textColor="#1E293B" />
 
         <Button
             android:id="@+id/btnSaveProfile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:backgroundTint="#2E647D"
+            android:backgroundTint="#5D4894"
             android:text="Guardar Perfil y Ficha"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
@@ -173,7 +174,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="32dp"
-            android:text="Volver al Menú" />
+            android:lineSpacingExtra="16sp"
+            android:text="Volver al Menú"
+            android:textStyle="bold" />
 
     </LinearLayout>
 </ScrollView>

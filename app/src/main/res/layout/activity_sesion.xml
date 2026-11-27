@@ -12,6 +12,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#C299CE"
         android:padding="24dp">
 
         <ImageView
@@ -19,11 +20,11 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginTop="16dp"
+            android:contentDescription="Logo Centinela"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/logo"
-            android:contentDescription="Logo Centinela" />
+            app:srcCompat="@drawable/logo" />
 
         <TextView
             android:id="@+id/textViewTitle"
@@ -56,12 +57,12 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="4dp"
-            android:background="#764587"
+            android:background="#5D4894"
             android:ems="10"
             android:inputType="text"
+            android:paddingHorizontal="12dp"
             android:textColor="#FFFFFF"
             android:textColorHint="#E0E0E0"
-            android:paddingHorizontal="12dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -83,12 +84,12 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="4dp"
-            android:background="#764587"
+            android:background="#5D4894"
             android:ems="10"
             android:inputType="textPassword"
+            android:paddingHorizontal="12dp"
             android:textColor="#FFFFFF"
             android:textColorHint="#E0E0E0"
-            android:paddingHorizontal="12dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView2" />
@@ -124,11 +125,11 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_marginTop="16dp"
+            android:backgroundTint="#5D4894"
             android:text="2. Crear una cuenta"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:backgroundTint="#5E3571"
             app:cornerRadius="24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -141,11 +142,11 @@
             android:layout_height="56dp"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="24dp"
+            android:backgroundTint="#5D4894"
             android:text="3. Ingresar como protector"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:backgroundTint="#4A148C"
             app:cornerRadius="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

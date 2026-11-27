@@ -29,6 +29,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#C299CE"
             android:orientation="vertical"
             android:padding="10dp">
 
@@ -38,7 +39,8 @@
                 android:layout_height="wrap_content"
                 android:text="Mensaje de emergencia..."
                 android:textColor="#FFFFFF"
-                android:textSize="14sp" />
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvIncomingTime"
@@ -47,8 +49,9 @@
                 android:layout_gravity="end"
                 android:layout_marginTop="4dp"
                 android:text="12:00 PM"
-                android:textColor="#9E9E9E"
-                android:textSize="10sp" />
+                android:textColor="#757575"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

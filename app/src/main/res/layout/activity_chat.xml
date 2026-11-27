@@ -13,11 +13,12 @@
         android:id="@+id/tvPrivacyNotice"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#F6E7FF"
+        android:background="#D8BFD8"
         android:padding="8dp"
         android:text="🔒 Tus comentarios son anónimos. Solo la Asociación de Mujeres podrá ver tus datos por seguridad."
-        android:textColor="#2E7D32"
-        android:textSize="12sp"
+        android:textColor="#700483"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,9 +28,9 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
-        android:dividerHeight="8dp"
         android:layout_marginBottom="16dp"
-        android:background="#F6E7FF"
+        android:background="#D8BFD8"
+        android:dividerHeight="8dp"
         android:padding="8dp"
         app:layout_constraintBottom_toTopOf="@id/etMessage"
         app:layout_constraintEnd_toEndOf="parent"
@@ -42,15 +43,15 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
+        android:background="#D8BFD8"
         android:hint="Reporta acoso o violencia para advertir..."
         android:inputType="text"
-        android:background="#FFFFFF"
         android:padding="12dp"
         android:textColor="#1E293B"
-        app:layout_constraintTop_toTopOf="@id/btnSend"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btnSend"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btnSend" />
 
     <Button
         android:id="@+id/btnSend"
@@ -58,6 +59,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:text="Publicar Alerta"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

@@ -13,7 +13,7 @@
         android:id="@+id/topBarChat"
         android:layout_width="0dp"
         android:layout_height="64dp"
-        android:background="#16122B"
+        android:background="#C299CE"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
@@ -24,12 +24,12 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/logo"
-            android:background="@drawable/bg_menu_button"
-            android:scaleType="centerCrop"
-            android:padding="4dp"
             android:layout_marginEnd="12dp"
-            android:contentDescription="Chat Logo" />
+            android:background="@drawable/bg_menu_button"
+            android:contentDescription="Chat Logo"
+            android:padding="4dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/logo" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:text="💬 Chat de Alertas y SOS"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -50,17 +50,19 @@
                 android:layout_height="wrap_content"
                 android:text="🟢 En línea • Monitoreo seguro"
                 android:textColor="#00E676"
-                android:textSize="11sp" />
+                android:textSize="14sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <Button
             android:id="@+id/btnRegresarChat"
             android:layout_width="wrap_content"
-            android:layout_height="38dp"
-            android:text="Regresar"
-            android:textSize="12sp"
+            android:layout_height="46dp"
             android:background="@drawable/bg_menu_button"
-            android:textColor="#FFFFFF" />
+            android:text="Regresar"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- Empty State View (Shown when no alerts) -->
@@ -110,6 +112,7 @@
         android:id="@+id/listChatAlertas"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="#D8BFD8"
         android:divider="@null"
         android:dividerHeight="8dp"
         android:padding="16dp"
@@ -125,7 +128,7 @@
         android:id="@+id/bottomInputBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#16122B"
+        android:background="#D8BFD8"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="12dp"
@@ -138,13 +141,13 @@
             android:layout_width="0dp"
             android:layout_height="46dp"
             android:layout_weight="1"
-            android:background="@drawable/bg_dark_card"
+            android:background="@drawable/bg_menu_button"
             android:hint="Escribe un mensaje..."
+            android:inputType="text"
+            android:paddingHorizontal="14dp"
             android:textColor="#FFFFFF"
             android:textColorHint="#9E9E9E"
-            android:textSize="14sp"
-            android:paddingHorizontal="14dp"
-            android:inputType="text" />
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/btnEnviarChat"
@@ -154,7 +157,8 @@
             android:background="@drawable/bg_menu_button"
             android:text="Enviar 🚀"
             android:textColor="#FFFFFF"
-            android:textSize="13sp" />
+            android:textSize="16sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

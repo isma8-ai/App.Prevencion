@@ -12,6 +12,7 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#C299CE"
         android:padding="16dp">
 
         <!-- Top Header: Logo, Title, Subtitle, and Menu Button -->
@@ -45,15 +46,15 @@
                 android:text="CENTINELA"
                 android:textAlignment="viewStart"
                 android:textColor="#FFFFFF"
-                android:textSize="21sp"
+                android:textSize="24sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Tu seguridad, nuestra prioridad"
-                android:textColor="#A29BFE"
-                android:textSize="11sp" />
+                android:textColor="#700483"
+                android:textSize="14sp" />
         </LinearLayout>
 
         <Button
@@ -64,7 +65,8 @@
             android:paddingHorizontal="16dp"
             android:text="☰ Menú"
             android:textColor="#FFFFFF"
-            android:textSize="14sp"
+            android:textSize="16sp"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@id/imgLogo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/imgLogo" />

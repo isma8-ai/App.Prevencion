@@ -12,6 +12,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#C299CE"
         android:padding="24dp">
 
         <ImageView
@@ -19,11 +20,11 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginTop="24dp"
+            android:contentDescription="Logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/logo"
-            android:contentDescription="Logo" />
+            app:srcCompat="@drawable/logo" />
 
         <TextView
             android:id="@+id/tvTituloRegistro"
@@ -32,7 +33,7 @@
             android:layout_marginTop="16dp"
             android:text="Crear Cuenta - Centinela"
             android:textColor="#FFFFFF"
-            android:textSize="22sp"
+            android:textSize="24sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -43,12 +44,12 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_marginTop="24dp"
-            android:background="#764587"
+            android:background="#5D4894"
             android:hint=" Nombre completo"
-            android:textColorHint="#E0E0E0"
-            android:textColor="#FFFFFF"
             android:inputType="textPersonName"
             android:paddingHorizontal="12dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#E0E0E0"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvTituloRegistro" />
@@ -58,12 +59,12 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_marginTop="16dp"
-            android:background="#764587"
+            android:background="#5D4894"
             android:hint=" Usuario"
-            android:textColorHint="#E0E0E0"
-            android:textColor="#FFFFFF"
             android:inputType="text"
             android:paddingHorizontal="12dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#E0E0E0"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/etNombreReg" />
@@ -73,12 +74,12 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_marginTop="16dp"
-            android:background="#764587"
+            android:background="#5D4894"
             android:hint=" Contraseña"
-            android:textColorHint="#E0E0E0"
-            android:textColor="#FFFFFF"
             android:inputType="textPassword"
             android:paddingHorizontal="12dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#E0E0E0"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/etUsuarioReg" />
@@ -99,12 +100,14 @@
 
         <Button
             android:id="@+id/btnVolverLogin"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_width="366dp"
+            android:layout_height="60dp"
             android:layout_marginTop="12dp"
+            android:backgroundTint="#5D4894"
             android:text="Ya tengo cuenta (Iniciar Sesión)"
             android:textColor="#FFFFFF"
-            android:backgroundTint="#5E3571"
+            android:textSize="16sp"
+            android:textStyle="bold"
             app:cornerRadius="24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#A77DD7"
+    android:background="#C299CE"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -12,7 +12,7 @@
         android:layout_marginBottom="12dp"
         android:text="Tu identidad estará protegida como Anónimo."
         android:textColor="#FFFFFF"
-        android:textSize="18sp"
+        android:textSize="18dp"
         android:textStyle="bold" />
 
     <EditText
@@ -20,22 +20,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
+        android:background="#D8BFD8"
         android:hint="Título o Referencia (ej. Zona sin luz)"
         android:inputType="text"
-        android:textColor="#1E293B"
-        android:background="#F6E7FF"
         android:padding="12dp"
+        android:textColor="#000000"
         android:textSize="15sp" />
 
     <EditText
         android:id="@+id/edtComentarioReporte"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#D8BFD8"
         android:gravity="top|start"
         android:hint="¿Qué pasó y por qué es peligrosa esta zona?"
         android:inputType="textMultiLine"
         android:lines="3"
-        android:background="#F6E7FF"
         android:padding="12dp"
         android:textColor="#1E293B"
         android:textSize="15sp" />
