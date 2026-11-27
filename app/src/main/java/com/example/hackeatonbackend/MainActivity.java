@@ -23,6 +23,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.location.LocationManagerCompat;
@@ -105,11 +106,20 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             cardGuiaProtector.setVisibility(isProtectorMode ? View.VISIBLE : View.GONE);
         }
 
+        ConstraintLayout.LayoutParams p3 = (ConstraintLayout.LayoutParams) button3.getLayoutParams();
+        ConstraintLayout.LayoutParams p4 = (ConstraintLayout.LayoutParams) button4.getLayoutParams();
+        Button buttonCerrarSesion = findViewById(R.id.buttonCerrarSesion);
+        ConstraintLayout.LayoutParams pLogout = buttonCerrarSesion != null ? (ConstraintLayout.LayoutParams) buttonCerrarSesion.getLayoutParams() : null;
+
         if (isProtectorMode) {
             if (button2 != null) button2.setVisibility(View.GONE);
             if (button5 != null) button5.setVisibility(View.GONE);
             if (button6 != null) button6.setVisibility(View.GONE);
             if (button8 != null) button8.setVisibility(View.GONE);
+
+            p3.topToBottom = R.id.cardGuiaProtector;
+            p4.topToBottom = R.id.cardGuiaProtector;
+            if (pLogout != null) pLogout.topToBottom = R.id.button3;
 
             if (button3 != null) {
                 button3.setText("📥 Bandeja de Alertas (" + (protectedUserId.isEmpty() ? "Protegida" : protectedUserId) + ")");
@@ -117,6 +127,10 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
                 button3.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, BandejaChatActivity.class)));
             }
         } else {
+            p3.topToBottom = R.id.button2;
+            p4.topToBottom = R.id.button2;
+            if (pLogout != null) pLogout.topToBottom = R.id.button8;
+
             if (button2 != null) {
                 button2.setVisibility(View.VISIBLE);
                 button2.setOnClickListener(v -> mostrarConfirmacionSos());
@@ -142,6 +156,14 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             }
         }
 
+        button3.setLayoutParams(p3);
+        button4.setLayoutParams(p4);
+        if (buttonCerrarSesion != null && pLogout != null) {
+            buttonCerrarSesion.setLayoutParams(pLogout);
+            buttonCerrarSesion.setVisibility(View.VISIBLE);
+            buttonCerrarSesion.setOnClickListener(v -> cerrarSesion());
+        }
+
         if (button4 != null) {
             button4.setVisibility(View.VISIBLE);
             button4.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, mapa.class)));
@@ -153,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
                 btnTopMenu.setVisibility(View.GONE);
             } else {
                 btnTopMenu.setVisibility(View.VISIBLE);
+                btnTopMenu.setText("☰ Menú");
                 btnTopMenu.setOnClickListener(v -> showQuickMenuDialog());
             }
         }
@@ -406,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
     private void showQuickMenuDialog() {
         String[] options = {"👤 Mi Perfil y Ficha Médica", "📋 Ver y Copiar Mi ID Único", "👥 Ver Mis Contactos Vinculados"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Menú Rápido - Centinela");
+        builder.setTitle("MenúRápido - Centinela");
         builder.setItems(options, (dialog, which) -> {
             if (which == 0) {
                 startActivity(new Intent(MainActivity.this, perfil.class));
@@ -417,6 +440,19 @@ public class MainActivity extends AppCompatActivity implements SosHelper.Listene
             }
         });
         builder.show();
+    }
+
+    private void cerrarSesion() {
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        prefs.edit()
+                .putBoolean("isProtectorMode", false)
+                .putBoolean("isAdminMode", false)
+                .apply();
+
+        Intent i = new Intent(MainActivity.this, sesion.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
+        finish();
     }
 
     private void showMyIdDialog() {
