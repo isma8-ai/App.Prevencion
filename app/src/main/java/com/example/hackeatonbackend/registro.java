@@ -45,25 +45,27 @@ public class registro extends AppCompatActivity {
                 return;
             }
 
-            // Registrar nueva usuaria en UserManager con ID aleatorio único generado automáticamente
             UserManager.Usuario nuevoUser = UserManager.registrarNuevaUsuaria(this, usuario, password, nombre);
 
-            // Guardar datos de la sesión actual en SharedPreferences
+            // 1. Guardar primero la sesión y el rol
+            SesionRolHelper.guardarRol(this, SesionRolHelper.ROL_USUARIA, usuario);
+            SosHelper.guardarUsuarioSesion(this, usuario);
+
             SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
             prefs.edit()
-                    .putBoolean("isProtectorMode", false)
                     .putString("fullName", nombre)
-                    .putString("username", usuario)
                     .putString("password", password)
                     .putString("myUniqueId", nuevoUser.uniqueId)
+                    .putString("protectedUserId", "")
                     .apply();
+
+            // 2. Registrar el evento ahora que la sesión ya está activa
+            HistorialManager.registrar(this, HistorialManager.TIPO_LOGIN,
+                    "Registro de nueva cuenta: " + usuario + " (ID: " + nuevoUser.uniqueId + ")");
 
             Toast.makeText(this, "¡Cuenta creada con éxito! Tu ID es: " + nuevoUser.uniqueId, Toast.LENGTH_LONG).show();
 
-            HistorialManager.registrar(this, HistorialManager.TIPO_LOGIN, "Registro de nueva cuenta: " + usuario + " (ID: " + nuevoUser.uniqueId + ")");
-            SosHelper.guardarUsuarioSesion(this, usuario);
-
-            Intent intent = new Intent(registro.this, MainActivity.class);
+            Intent intent = SesionRolHelper.intentMenuPrincipal(registro.this);
             startActivity(intent);
             finish();
         });

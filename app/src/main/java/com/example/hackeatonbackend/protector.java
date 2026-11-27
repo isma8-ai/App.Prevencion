@@ -68,6 +68,7 @@ public class protector extends AppCompatActivity {
             String idFinal = (usuaria != null) ? usuaria.uniqueId : idProtegido;
 
             SesionRolHelper.guardarRol(this, SesionRolHelper.ROL_PROTECTOR, nombreProtector);
+            UserManager.registrarProtector(this, nombreProtector, idFinal);
 
             SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
             Set<String> contacts = prefs.getStringSet(KEY_CONTACTS, new HashSet<>());

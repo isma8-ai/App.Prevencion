@@ -59,9 +59,11 @@ public class UserManager {
 
         boolean hasUser = false;
         boolean hasAdmin = false;
+        boolean hasProtector = false;
         for (Usuario u : lista) {
             if ("User".equalsIgnoreCase(u.username)) hasUser = true;
             if ("ADMIN".equalsIgnoreCase(u.role) || "Admin".equalsIgnoreCase(u.username)) hasAdmin = true;
+            if ("PROTECTOR".equalsIgnoreCase(u.role) || "Protector".equalsIgnoreCase(u.username)) hasProtector = true;
         }
 
         if (!hasUser) {
@@ -78,9 +80,54 @@ public class UserManager {
             changed = true;
         }
 
+        if (!hasProtector) {
+            lista.add(new Usuario("Protector", "", "PROTECTOR", "Protector Demo", "CENTINELA-PRT001",
+                    "6681000002", "10/08/1995", "protector@centinela.mx", "O+", "Ninguna", "Protector registrado",
+                    MapaDatos.CENTRO_DEFAULT.latitude, MapaDatos.CENTRO_DEFAULT.longitude));
+            changed = true;
+        }
+
         if (changed) {
             guardarUsuarios(context, lista);
         }
+    }
+
+    public static synchronized Usuario registrarProtector(Context context, String nombreProtector, String idProtegido) {
+        if (nombreProtector == null || nombreProtector.trim().isEmpty()) return null;
+        inicializarUsuariosPorDefecto(context);
+        List<Usuario> lista = obtenerUsuarios(context);
+
+        String limpio = nombreProtector.trim();
+        for (Usuario u : lista) {
+            if (u.username.equalsIgnoreCase(limpio) || u.fullName.equalsIgnoreCase(limpio)) {
+                u.role = "PROTECTOR";
+                if (u.medicalInfo == null || u.medicalInfo.isEmpty()) {
+                    u.medicalInfo = "Vinculado a: " + idProtegido;
+                }
+                guardarUsuarios(context, lista);
+                return u;
+            }
+        }
+
+        String uniqueId = "CENTINELA-PRT-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+        Usuario nuevo = new Usuario(
+                limpio,
+                "",
+                "PROTECTOR",
+                limpio,
+                uniqueId,
+                "",
+                "",
+                "",
+                "",
+                "",
+                "Vinculado a: " + idProtegido,
+                MapaDatos.CENTRO_DEFAULT.latitude,
+                MapaDatos.CENTRO_DEFAULT.longitude
+        );
+        lista.add(nuevo);
+        guardarUsuarios(context, lista);
+        return nuevo;
     }
 
     public static synchronized List<Usuario> obtenerUsuarios(Context context) {

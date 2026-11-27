@@ -51,8 +51,10 @@ public class historial extends AppCompatActivity {
         listViewHistorial.setEmptyView(tvVacio);
 
         button10.setOnClickListener(v -> {
-            Intent intent = new Intent(historial.this, MainActivity.class);
+            Intent intent = SesionRolHelper.intentMenuPrincipal(historial.this);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
+            finish();
         });
 
         btnLimpiar.setOnClickListener(v -> new AlertDialog.Builder(this)

@@ -117,10 +117,12 @@ public class perfil extends AppCompatActivity {
             btnSaveTop.setOnClickListener(v -> saveAction.run());
         }
 
-        // Volver
+        // Volver respetando el rol (Admin o Usuaria)
         btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(perfil.this, MainActivity.class);
+            Intent intent = SesionRolHelper.intentMenuPrincipal(perfil.this);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
+            finish();
         });
     }
 }
