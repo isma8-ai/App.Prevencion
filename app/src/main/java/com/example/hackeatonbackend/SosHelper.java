@@ -1,12 +1,26 @@
 package com.example.hackeatonbackend;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.core.location.LocationManagerCompat;
+import androidx.core.os.CancellationSignal;
+import androidx.core.util.Consumer;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,6 +39,12 @@ public class SosHelper {
     private static final String KEY_BLOOD = "bloodType";
     private static final String KEY_ALLERGIES = "allergies";
     private static final String KEY_MEDICAL = "medicalInfo";
+    private static final String KEY_SESION = "usuarioSesion";
+
+    /** Las pantallas que muestren marcas (mapa, minimapa) lo implementan para refrescarse al publicar. */
+    public interface Listener {
+        void onMarcaSosPublicada();
+    }
 
     private SosHelper() {}
 
@@ -66,6 +86,8 @@ public class SosHelper {
                     .setPositiveButton("Cerrar Alerta", (d, w) -> d.dismiss())
                     .setNeutralButton("Ver en Mapa", (d, w) ->
                             act.startActivity(new Intent(act, mapa.class)))
+                    .setNegativeButton("📍 Subir marca al mapa (30 min)", (d, w) ->
+                            subirMarcaSos(act, origen))
                     .show();
         }
 
@@ -73,6 +95,110 @@ public class SosHelper {
                 Toast.LENGTH_LONG).show();
         HistorialManager.registrar(app, HistorialManager.TIPO_SOS,
                 "Alerta SOS (" + origen + ") enviada a " + contacts.size() + " contactos de confianza");
+    }
+
+    /** Guarda el usuario con el que se inició sesión (lo usa la marca SOS). */
+    public static void guardarUsuarioSesion(Context ctx, String usuario) {
+        ctx.getApplicationContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+                .edit().putString(KEY_SESION, usuario).apply();
+    }
+
+    // ------------------------------------------------------------ Marca SOS en el mapa
+
+    private static void subirMarcaSos(Activity act, String origen) {
+        Context app = act.getApplicationContext();
+
+        if (!tienePermisoUbicacion(app)) {
+            Toast.makeText(app, "Activa el permiso de ubicación para subir la marca al mapa",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Toast.makeText(app, "Obteniendo tu ubicación…", Toast.LENGTH_SHORT).show();
+        obtenerUbicacion(app, location -> {
+            if (location == null) {
+                Toast.makeText(app, "No se pudo obtener tu ubicación. Activa el GPS e inténtalo de nuevo",
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            SharedPreferences prefs = app.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+            String usuario = prefs.getString(KEY_SESION, "");
+            if (usuario.isEmpty()) usuario = prefs.getString(KEY_FULL_NAME, "");
+            if (usuario.isEmpty()) usuario = "Usuario";
+
+            LatLng posicion = new LatLng(location.getLatitude(), location.getLongitude());
+            MapaDatos.publicarMarcaSos(app, getOrCreateMyId(prefs), usuario, posicion, origen);
+
+            HistorialManager.registrar(app, HistorialManager.TIPO_MAPA,
+                    "Marca SOS publicada en el mapa por 30 minutos");
+            Toast.makeText(app, "Marca SOS publicada en el mapa por 30 minutos", Toast.LENGTH_LONG).show();
+
+            if (act instanceof Listener && !act.isFinishing() && !act.isDestroyed()) {
+                ((Listener) act).onMarcaSosPublicada();
+            }
+        });
+    }
+
+    private static boolean tienePermisoUbicacion(Context ctx) {
+        return ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /** Pide una ubicación fresca (8 s máx.); si falla, usa la última conocida solo si tiene menos de 10 min. */
+    @SuppressLint("MissingPermission")
+    private static void obtenerUbicacion(Context ctx, Consumer<Location> callback) {
+        LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
+        if (lm == null) {
+            callback.accept(null);
+            return;
+        }
+
+        Location mejor = null;
+        try {
+            for (String provider : lm.getProviders(true)) {
+                Location l = lm.getLastKnownLocation(provider);
+                if (l != null && (mejor == null || l.getAccuracy() < mejor.getAccuracy())) {
+                    mejor = l;
+                }
+            }
+        } catch (SecurityException ignored) {
+        }
+        if (mejor != null) {
+            long edadMs = (SystemClock.elapsedRealtimeNanos() - mejor.getElapsedRealtimeNanos()) / 1_000_000L;
+            if (edadMs > 10 * 60 * 1000L) mejor = null; // muy vieja: mejor no marcar un lugar equivocado
+        }
+        final Location respaldo = mejor;
+
+        boolean fine = ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+        String provider = null;
+        if (fine && lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            provider = LocationManager.GPS_PROVIDER;
+        } else if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            provider = LocationManager.NETWORK_PROVIDER;
+        }
+        if (provider == null) {
+            callback.accept(respaldo);
+            return;
+        }
+
+        CancellationSignal signal = new CancellationSignal();
+        Handler handler = new Handler(Looper.getMainLooper());
+        Runnable timeout = signal::cancel;
+        handler.postDelayed(timeout, 8000);
+        try {
+            LocationManagerCompat.getCurrentLocation(lm, provider, signal,
+                    ContextCompat.getMainExecutor(ctx), location -> {
+                        handler.removeCallbacks(timeout);
+                        callback.accept(location != null ? location : respaldo);
+                    });
+        } catch (SecurityException e) {
+            handler.removeCallbacks(timeout);
+            callback.accept(respaldo);
+        }
     }
 
     private static String getOrCreateMyId(SharedPreferences prefs) {

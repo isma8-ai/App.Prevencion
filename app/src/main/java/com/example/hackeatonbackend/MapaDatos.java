@@ -18,8 +18,11 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Datos compartidos del mapa (puntos de calor, reportes, icono de alerta).
@@ -29,6 +32,8 @@ public class MapaDatos {
 
     public static final LatLng CENTRO_DEFAULT = new LatLng(25.79097, -108.99825); // Los Mochis centro
     public static final float RADIO_MINIMAPA_METROS = 100f;
+    /** Duración de una marca SOS en el mapa: media hora. */
+    public static final long DURACION_SOS_MS = 30L * 60L * 1000L;
 
     private static final String PREF_NAME = "ReportesMapaPrefs";
     private static final String KEY_REPORTES = "reportes_anonimos";
@@ -52,7 +57,7 @@ public class MapaDatos {
     public static List<LatLng> obtenerPuntosCalor(Context context) {
         List<LatLng> puntos = puntosCalorBase();
         for (ReporteMarcador r : obtenerReportesLocales(context)) {
-            puntos.add(r.posicion);
+            if (!r.esSos) puntos.add(r.posicion);
         }
         return puntos;
     }
@@ -104,7 +109,16 @@ public class MapaDatos {
                 .getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         String jsonString = prefs.getString(KEY_REPORTES, "[]");
         try {
-            JSONArray array = new JSONArray(jsonString);
+            JSONArray actual = new JSONArray(jsonString);
+            JSONArray array = new JSONArray();
+            long ahora = System.currentTimeMillis();
+            for (int i = 0; i < actual.length(); i++) {
+                JSONObject o = actual.getJSONObject(i);
+                long exp = o.optLong("expira", 0L);
+                if (exp > 0 && exp <= ahora) continue; // purga marcas ya vencidas
+                if (reporte.esSos && reporte.id.equals(o.optString("id"))) continue; // un nuevo SOS reemplaza al anterior
+                array.put(o);
+            }
             JSONObject obj = new JSONObject();
             obj.put("id", reporte.id);
             obj.put("titulo", reporte.titulo);
@@ -113,6 +127,8 @@ public class MapaDatos {
             obj.put("usuario", reporte.usuario);
             obj.put("fecha", reporte.fecha);
             obj.put("comentario", reporte.comentario);
+            obj.put("expira", reporte.expiraEn);
+            obj.put("sos", reporte.esSos);
             array.put(obj);
             prefs.edit().putString(KEY_REPORTES, array.toString()).apply();
         } catch (Exception e) {
@@ -129,18 +145,45 @@ public class MapaDatos {
             JSONArray array = new JSONArray(jsonString);
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
+                long expira = obj.optLong("expira", 0L);
+                if (expira > 0 && expira <= System.currentTimeMillis()) continue; // marca SOS vencida
                 lista.add(new ReporteMarcador(
                         obj.getString("id"),
                         obj.getString("titulo"),
                         new LatLng(obj.getDouble("lat"), obj.getDouble("lng")),
                         obj.getString("usuario"),
                         obj.getString("fecha"),
-                        obj.getString("comentario")));
+                        obj.getString("comentario"),
+                        expira,
+                        obj.optBoolean("sos", false)));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return lista;
+    }
+
+    // ---------------------------------------------------------------- Marca SOS
+
+    /**
+     * Publica una marca SOS temporal (30 min) con usuario, fecha y hora.
+     * Cada usuario tiene una sola marca SOS: una nueva reemplaza a la anterior.
+     */
+    public static ReporteMarcador publicarMarcaSos(Context context, String idUsuario, String usuario,
+                                                   LatLng posicion, String origen) {
+        long ahora = System.currentTimeMillis();
+        String fecha = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(new Date(ahora));
+        ReporteMarcador marca = new ReporteMarcador(
+                "sos_" + idUsuario,
+                "🚨 SOS de " + usuario,
+                posicion,
+                usuario,
+                fecha,
+                "Alerta SOS activada (" + origen + ").",
+                ahora + DURACION_SOS_MS,
+                true);
+        guardarReporteLocal(context, marca);
+        return marca;
     }
 
     // ---------------------------------------------------------------- Radio
@@ -173,6 +216,15 @@ public class MapaDatos {
 
     /** Icono de alerta. escala 1f = tamaño normal (mapa grande), 0.5f = minimapa. */
     public static BitmapDescriptor crearIconoAlerta(float escala) {
+        return crearIcono(escala, 0xFFE53935, 0xFFD32F2F);
+    }
+
+    /** Icono morado para las marcas SOS temporales. */
+    public static BitmapDescriptor crearIconoSos(float escala) {
+        return crearIcono(escala, 0xFF7B1FA2, 0xFF4A148C);
+    }
+
+    private static BitmapDescriptor crearIcono(float escala, int colorPin, int colorSigno) {
         int width = Math.max(1, Math.round(96 * escala));
         int height = Math.max(1, Math.round(112 * escala));
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -180,7 +232,7 @@ public class MapaDatos {
         canvas.scale(escala, escala);
 
         Paint pinPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        pinPaint.setColor(Color.parseColor("#E53935"));
+        pinPaint.setColor(colorPin);
         pinPaint.setStyle(Paint.Style.FILL);
 
         Paint circuloClaroPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -188,7 +240,7 @@ public class MapaDatos {
         circuloClaroPaint.setStyle(Paint.Style.FILL);
 
         Paint exclamacionPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        exclamacionPaint.setColor(Color.parseColor("#D32F2F"));
+        exclamacionPaint.setColor(colorSigno);
         exclamacionPaint.setStyle(Paint.Style.FILL);
         exclamacionPaint.setStrokeCap(Paint.Cap.ROUND);
 

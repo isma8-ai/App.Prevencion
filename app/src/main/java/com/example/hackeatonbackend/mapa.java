@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -41,12 +43,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class mapa extends AppCompatActivity implements OnMapReadyCallback {
+public class mapa extends AppCompatActivity implements OnMapReadyCallback, SosHelper.Listener {
 
     private GoogleMap googleMap;
     private HeatmapTileProvider heatmapProvider;
     private TileOverlay heatmapOverlay;
     private BitmapDescriptor iconoAlerta;
+    private BitmapDescriptor iconoSos;
+    private final Map<String, Marker> marcadoresSos = new HashMap<>();
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private final Map<String, ReporteMarcador> reportesPorMarkerId = new HashMap<>();
     private final List<LatLng> heatmapPoints = new ArrayList<>();
 
@@ -90,6 +95,7 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback {
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
         iconoAlerta = MapaDatos.crearIconoAlerta(1f);
+        iconoSos = MapaDatos.crearIconoSos(1f);
 
         googleMap.getUiSettings().setZoomControlsEnabled(true);
         googleMap.getUiSettings().setZoomGesturesEnabled(true);
@@ -119,16 +125,52 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback {
     }
 
     private void agregarMarcadorAlMapa(ReporteMarcador reporte) {
+        if (reporte.esSos) {
+            // Un SOS nuevo del mismo usuario reemplaza al anterior
+            Marker previo = marcadoresSos.remove(reporte.id);
+            if (previo != null) previo.remove();
+        }
+
         Marker marker = googleMap.addMarker(new MarkerOptions()
                 .position(reporte.posicion)
                 .title(reporte.titulo)
                 .anchor(0.5f, 1.0f)
-                .icon(iconoAlerta));
+                .icon(reporte.esSos ? iconoSos : iconoAlerta)
+                .zIndex(reporte.esSos ? 1f : 0f));
 
         if (marker != null) {
             marker.setTag(reporte);
             reportesPorMarkerId.put(marker.getId(), reporte);
+            if (reporte.esSos) {
+                marcadoresSos.put(reporte.id, marker);
+                programarExpiracion(reporte, marker);
+            }
         }
+    }
+
+    /** Quita la marca SOS del mapa cuando se cumple su media hora. */
+    private void programarExpiracion(ReporteMarcador reporte, Marker marker) {
+        long espera = Math.max(0L, reporte.expiraEn - System.currentTimeMillis());
+        handler.postDelayed(() -> {
+            if (marcadoresSos.get(reporte.id) == marker) marcadoresSos.remove(reporte.id);
+            reportesPorMarkerId.remove(marker.getId());
+            marker.remove();
+        }, espera);
+    }
+
+    /** Se llama cuando se sube una marca SOS desde la ficha de emergencia con el mapa abierto. */
+    @Override
+    public void onMarcaSosPublicada() {
+        if (googleMap == null) return;
+        for (ReporteMarcador r : MapaDatos.obtenerTodosLosReportes(this)) {
+            if (r.esSos) agregarMarcadorAlMapa(r);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        handler.removeCallbacksAndMessages(null);
+        super.onDestroy();
     }
 
     private void agregarMarcadoresDeAlerta() {
@@ -211,6 +253,10 @@ public class mapa extends AppCompatActivity implements OnMapReadyCallback {
         String detalle = "Nombre de usuario: " + reporte.usuario
                 + "\nFecha: " + reporte.fecha
                 + "\n\nComentario:\n" + reporte.comentario;
+        if (reporte.esSos && reporte.expiraEn > 0) {
+            detalle += "\n\n⏳ Esta marca desaparece a las "
+                    + new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date(reporte.expiraEn));
+        }
 
         new AlertDialog.Builder(this)
                 .setTitle(reporte.titulo)

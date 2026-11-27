@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SosHelper.Listener {
 
     private static final String PREF_NAME = "CentinelaPrefs";
     private static final String KEY_MY_ID = "myUniqueId";
@@ -64,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
     private LatLng centroMini = MapaDatos.CENTRO_DEFAULT;
     private boolean ubicacionReal = false;
     private boolean miniMapaListo = false;
+    private final Handler miniHandler = new Handler(Looper.getMainLooper());
+    private final Runnable redibujarMinimapa = () -> {
+        if (miniMap != null && miniMapaListo) dibujarMinimapa();
+    };
 
     private final ActivityResultLauncher<String[]> miniLocationPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -140,6 +144,18 @@ public class MainActivity extends AppCompatActivity {
         if (miniMap != null && miniMapaListo) {
             dibujarMinimapa();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        miniHandler.removeCallbacksAndMessages(null);
+        super.onDestroy();
+    }
+
+    /** Se llama cuando se sube una marca SOS desde la ficha de emergencia. */
+    @Override
+    public void onMarcaSosPublicada() {
+        if (miniMap != null && miniMapaListo) dibujarMinimapa();
     }
 
     // ===================== MINIMAPA (solo lectura, radio 100 m) =====================
@@ -280,15 +296,29 @@ public class MainActivity extends AppCompatActivity {
 
         // Marcas de alerta dentro del radio (icono reducido, sin título para no abrir ventanas)
         BitmapDescriptor icono = MapaDatos.crearIconoAlerta(0.5f);
+        BitmapDescriptor iconoSos = MapaDatos.crearIconoSos(0.5f);
         int cercanos = 0;
+        long proximaExpiracion = 0;
         for (ReporteMarcador r : MapaDatos.obtenerTodosLosReportes(this)) {
             if (MapaDatos.estaEnRadio(r.posicion, centroMini, radio)) {
                 miniMap.addMarker(new MarkerOptions()
                         .position(r.posicion)
                         .anchor(0.5f, 1.0f)
-                        .icon(icono));
+                        .icon(r.esSos ? iconoSos : icono)
+                        .zIndex(r.esSos ? 1f : 0f));
                 cercanos++;
+                if (r.esSos && r.expiraEn > 0
+                        && (proximaExpiracion == 0 || r.expiraEn < proximaExpiracion)) {
+                    proximaExpiracion = r.expiraEn;
+                }
             }
+        }
+
+        // Redibuja justo cuando venza la próxima marca SOS para que desaparezca sola
+        miniHandler.removeCallbacks(redibujarMinimapa);
+        if (proximaExpiracion > 0) {
+            miniHandler.postDelayed(redibujarMinimapa,
+                    Math.max(1000L, proximaExpiracion - System.currentTimeMillis() + 500L));
         }
 
         // Punto azul de "mi ubicación" (solo visual)

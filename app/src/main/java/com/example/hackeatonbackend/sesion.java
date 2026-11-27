@@ -59,6 +59,8 @@ public class sesion extends AppCompatActivity {
                 HistorialManager.registrar(this, HistorialManager.TIPO_LOGIN,
                         "Inicio de sesión como " + usuarioIngresado);
 
+                SosHelper.guardarUsuarioSesion(this, usuarioIngresado);
+
                 startActivity(intent);
                 finish();
             } else {
