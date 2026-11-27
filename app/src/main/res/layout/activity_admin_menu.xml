@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#4A0000"
+    android:background="#E57373"
     android:fillViewport="true"
     tools:context=".AdminMenuActivity">
 
@@ -12,7 +12,7 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#C62828"
+        android:background="#E57373"
         android:padding="16dp">
 
         <!-- Cabecera: Logo, Título, Subtítulo y Botón Menú Usuarios -->
@@ -21,7 +21,7 @@
             android:layout_width="52dp"
             android:layout_height="52dp"
             android:background="@drawable/bg_menu_button"
-            android:backgroundTint="#8E0000"
+            android:backgroundTint="#A62626"
             android:contentDescription="Logo Centinela Admin"
             android:padding="6dp"
             android:scaleType="centerCrop"
@@ -54,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Control total • Modo Administrador"
-                android:textColor="#FFCDD2"
+                android:textColor="#FFFFFF"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="44dp"
             android:background="@drawable/bg_menu_button"
-            android:backgroundTint="#8E0000"
+            android:backgroundTint="#A62626"
             android:paddingHorizontal="14dp"
             android:text="👥 Usuarios"
             android:textColor="#FFFFFF"
@@ -80,7 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_menu_button"
-            android:backgroundTint="#8E0000"
+            android:backgroundTint="#A62626"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="12dp"
@@ -92,7 +92,7 @@
                 android:layout_width="8dp"
                 android:layout_height="8dp"
                 android:layout_marginEnd="6dp"
-                android:background="#FF8A80" />
+                android:background="#FFCDD2" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -110,7 +110,7 @@
             android:layout_height="64dp"
             android:layout_marginTop="16dp"
             android:background="@drawable/bg_sos_button"
-            android:backgroundTint="#8E0000"
+            android:backgroundTint="#B71C1C"
             android:text="🚨  ¡SOS! Pide Ayuda"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
@@ -127,7 +127,7 @@
             android:layout_marginTop="14dp"
             android:layout_marginEnd="6dp"
             android:background="@drawable/bg_dark_card"
-            android:backgroundTint="#8E0000"
+            android:backgroundTint="#A62626"
             android:text="💬 Chat Anónimo"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
@@ -143,7 +143,7 @@
             android:layout_marginStart="6dp"
             android:layout_marginTop="14dp"
             android:background="@drawable/bg_dark_card"
-            android:backgroundTint="#8E0000"
+            android:backgroundTint="#A62626"
             android:text="🗺️ Ver Mapa"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
@@ -160,7 +160,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginEnd="6dp"
             android:background="@drawable/bg_dark_card"
-            android:backgroundTint="#8E0000"
+            android:backgroundTint="#A62626"
             android:text="🛡️ Mi Pulsera"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
@@ -176,7 +176,7 @@
             android:layout_marginStart="6dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_dark_card"
-            android:backgroundTint="#8E0000"
+            android:backgroundTint="#A626266"
             android:text="📄 Historial"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
@@ -193,7 +193,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginEnd="6dp"
             android:background="@drawable/bg_dark_card"
-            android:backgroundTint="#8E0000"
+            android:backgroundTint="#A62626"
             android:text="📥 Bandeja SOS"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
@@ -209,7 +209,7 @@
             android:layout_marginStart="6dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_dark_card"
-            android:backgroundTint="#8E0000"
+            android:backgroundTint="#A62626"
             android:text="👤 Mi Perfil"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
@@ -225,7 +225,7 @@
             android:layout_height="58dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_dark_card"
-            android:backgroundTint="#8E0000"
+            android:backgroundTint="#A62626"
             android:text="⚙️ Acerca de Centinela"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
@@ -241,7 +241,7 @@
             android:layout_height="52dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_menu_button"
-            android:backgroundTint="#4A0000"
+            android:backgroundTint="#7F1D1D"
             android:text="Cerrar Sesión"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
@@ -257,7 +257,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:background="@drawable/bg_dark_card"
-            android:backgroundTint="#8E0000"
+            android:backgroundTint="#A62626"
             android:gravity="center"
             android:orientation="vertical"
             android:padding="16dp"
@@ -270,7 +270,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="🛡️ Administración • Centinela"
-                android:textColor="#FFCDD2"
+                android:textColor="#FFFFFF"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
