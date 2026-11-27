@@ -27,6 +27,8 @@ import java.util.List;
 public class pulsera extends AppCompatActivity implements PulseraManager.Listener {
 
     private PulseraManager manager;
+    private CentinelaBleManager bleManager;
+
     private TextView tvEstado, tvBateria, tvDispositivo;
     private ImageView imgPulsera;
     private MaterialSwitch swPulsera;
@@ -40,6 +42,7 @@ public class pulsera extends AppCompatActivity implements PulseraManager.Listene
 
     private boolean actualizandoSwitch = false;
     private Runnable pendiente;
+    private String ultimaTelemetria = "";
 
     private final ActivityResultLauncher<String[]> permisosLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -92,12 +95,36 @@ public class pulsera extends AppCompatActivity implements PulseraManager.Listene
             Toast.makeText(this, "Este dispositivo no tiene Bluetooth", Toast.LENGTH_LONG).show();
         }
 
+        bleManager = new CentinelaBleManager(this, new CentinelaBleManager.Listener() {
+            @Override
+            public void onEstado(String estadoBle) {
+                tvDispositivo.setText("Dispositivo: " + estadoBle);
+            }
+
+            @Override
+            public void onTelemetria(String datos) {
+                ultimaTelemetria = datos;
+                tvDispositivo.setText("Centinela-Pulsera · " + datos);
+            }
+
+            @Override
+            public void onAlertaSos(int tipoAlerta, String motivo) {
+                tvEstado.setText("🚨 SOS: " + motivo);
+                tvEstado.setTextColor(0xFFFF5252);
+                Toast.makeText(pulsera.this, "🚨 ALERTA SOS (" + tipoAlerta + "): " + motivo, Toast.LENGTH_LONG).show();
+            }
+        });
+
         swPulsera.setOnCheckedChangeListener((b, activado) -> {
             if (actualizandoSwitch) return;
             if (activado) {
-                requerirBluetooth(() -> manager.setHabilitada(true));
+                requerirBluetooth(() -> {
+                    manager.setHabilitada(true);
+                    bleManager.iniciarBusqueda();
+                });
             } else {
                 manager.setHabilitada(false);
+                bleManager.detenerBusqueda();
             }
             refrescarUI();
         });
@@ -105,6 +132,7 @@ public class pulsera extends AppCompatActivity implements PulseraManager.Listene
         btnBuscar.setOnClickListener(v -> {
             if (manager.isEscaneando()) {
                 manager.detenerEscaneo();
+                bleManager.detenerBusqueda();
             } else {
                 requerirBluetooth(() -> {
                     dispositivos.clear();
@@ -112,6 +140,7 @@ public class pulsera extends AppCompatActivity implements PulseraManager.Listene
                     etiquetas.clear();
                     adapter.notifyDataSetChanged();
                     manager.iniciarEscaneo();
+                    bleManager.iniciarBusqueda();
                     refrescarUI();
                 });
             }
@@ -131,6 +160,9 @@ public class pulsera extends AppCompatActivity implements PulseraManager.Listene
     protected void onResume() {
         super.onResume();
         manager.setListener(this);
+        if (manager.isHabilitada() && manager.tienePermisos() && manager.bluetoothActivo()) {
+            bleManager.iniciarBusqueda();
+        }
         refrescarUI();
     }
 
@@ -138,7 +170,16 @@ public class pulsera extends AppCompatActivity implements PulseraManager.Listene
     protected void onPause() {
         super.onPause();
         manager.detenerEscaneo();
+        bleManager.detenerBusqueda();
         manager.setListener(null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (bleManager != null) {
+            bleManager.cerrar();
+        }
     }
 
     // ---------------------------------------------------- Permisos y Bluetooth
@@ -196,8 +237,12 @@ public class pulsera extends AppCompatActivity implements PulseraManager.Listene
         int bat = manager.getBateria();
         tvBateria.setText(bat >= 0 && manager.isConectada() ? "🔋 Batería: " + bat + "%" : "🔋 Batería: --");
 
-        String nombre = manager.getNombreDispositivo();
-        tvDispositivo.setText(nombre != null ? "Dispositivo: " + nombre : "Sin dispositivo vinculado");
+        if (!ultimaTelemetria.isEmpty()) {
+            tvDispositivo.setText("Centinela-Pulsera · " + ultimaTelemetria);
+        } else {
+            String nombre = manager.getNombreDispositivo();
+            tvDispositivo.setText(nombre != null ? "Dispositivo: " + nombre : "Sin dispositivo vinculado");
+        }
 
         btnBuscar.setText(manager.isEscaneando() ? "⏹ Detener búsqueda" : "📡 Buscar dispositivos Bluetooth");
     }
